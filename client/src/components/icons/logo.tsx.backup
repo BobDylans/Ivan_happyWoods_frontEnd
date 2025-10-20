@@ -1,0 +1,71 @@
+"use client";
+
+import React from "react";
+import { motion } from "framer-motion";
+import { HappyLeaf } from "./happy-leaf";
+import { cn } from "@/lib/utils";
+import { duration, easing } from "@/lib/motion-config";
+
+interface LogoProps {
+  size?: "sm" | "default" | "lg" | "xl";
+  withGlow?: boolean;
+  className?: string;
+}
+
+const sizeMap = {
+  sm: { icon: 20, text: "text-base" },
+  default: { icon: 28, text: "text-xl" },
+  lg: { icon: 36, text: "text-2xl" },
+  xl: { icon: 48, text: "text-4xl" },
+} as const;
+
+/**
+ * Logo Component
+ * Brand identity with optional breathing glow animation
+ * 
+ * @param size - Size variant: sm, default, lg
+ * @param withGlow - Enable breathing glow animation
+ */
+export const Logo: React.FC<LogoProps> = ({ 
+  size = "default", 
+  withGlow = false,
+  className 
+}) => {
+  const { icon, text } = sizeMap[size];
+
+  const glowAnimation = withGlow
+    ? {
+        animate: {
+          filter: [
+            "drop-shadow(0 0 0px rgba(228, 177, 107, 0))",
+            "drop-shadow(0 0 8px rgba(228, 177, 107, 0.6))",
+            "drop-shadow(0 0 0px rgba(228, 177, 107, 0))",
+          ],
+        },
+        transition: {
+          duration: 2,
+          repeat: Infinity,
+          ease: "easeInOut",
+        },
+      }
+    : {};
+
+  return (
+    <div className={cn("flex items-center gap-2", className)}>
+      <motion.div
+        className="text-[var(--interactive-primary)]"
+        {...glowAnimation}
+      >
+        <HappyLeaf size={icon} />
+      </motion.div>
+      <span
+        className={cn(
+          "font-[family-name:var(--font-dm-sans)] font-semibold text-[var(--text-primary)]",
+          text
+        )}
+      >
+        Happy<span className="text-[var(--interactive-primary)]">Woods</span>
+      </span>
+    </div>
+  );
+};
