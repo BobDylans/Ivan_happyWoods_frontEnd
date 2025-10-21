@@ -2,7 +2,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, Send, Sparkles, Plus, Paperclip, Smile, Copy, ThumbsUp, ThumbsDown, ArrowDown } from 'lucide-react';
+import { ArrowLeft, Send, Sparkles, Plus, Paperclip, Smile, Copy, ThumbsUp, ThumbsDown, ArrowDown, RefreshCw, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button/button';
 import { Logo } from '@/components/icons/logo';
 import { NotionSidebar } from './notion-sidebar';
@@ -45,6 +45,9 @@ export const AIChatState: React.FC<AIChatStateProps> = ({
   const [isComposing, setIsComposing] = useState(false);
   const [showScrollButton, setShowScrollButton] = useState(false);
   const [isUserScrolling, setIsUserScrolling] = useState(false);
+  const [copiedMessageId, setCopiedMessageId] = useState<string | null>(null);
+  const [likedMessages, setLikedMessages] = useState<Set<string>>(new Set());
+  const [dislikedMessages, setDislikedMessages] = useState<Set<string>>(new Set());
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -104,6 +107,67 @@ export const AIChatState: React.FC<AIChatStateProps> = ({
 
   const handleNewChat = () => {
     onReset();
+  };
+
+  // 复制消息
+  const handleCopyMessage = async (messageId: string, content: string) => {
+    try {
+      await navigator.clipboard.writeText(content);
+      setCopiedMessageId(messageId);
+      setTimeout(() => setCopiedMessageId(null), 2000);
+    } catch (err) {
+      console.error('复制失败:', err);
+    }
+  };
+
+  // 点赞消息
+  const handleLikeMessage = (messageId: string) => {
+    setLikedMessages(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(messageId)) {
+        newSet.delete(messageId);
+      } else {
+        newSet.add(messageId);
+        // 如果之前点踩了，取消点踩
+        setDislikedMessages(prevDisliked => {
+          const newDisliked = new Set(prevDisliked);
+          newDisliked.delete(messageId);
+          return newDisliked;
+        });
+      }
+      return newSet;
+    });
+  };
+
+  // 点踩消息
+  const handleDislikeMessage = (messageId: string) => {
+    setDislikedMessages(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(messageId)) {
+        newSet.delete(messageId);
+      } else {
+        newSet.add(messageId);
+        // 如果之前点赞了，取消点赞
+        setLikedMessages(prevLiked => {
+          const newLiked = new Set(prevLiked);
+          newLiked.delete(messageId);
+          return newLiked;
+        });
+      }
+      return newSet;
+    });
+  };
+
+  // 重新生成回复
+  const handleRegenerateMessage = (messageIndex: number) => {
+    // 找到该消息对应的用户问题
+    if (messageIndex > 0) {
+      const userMessage = messages[messageIndex - 1];
+      if (userMessage && userMessage.role === 'user') {
+        // 重新发送用户消息
+        onMessage(userMessage.content);
+      }
+    }
   };
 
   // 根据对话内容生成标题
@@ -249,35 +313,73 @@ export const AIChatState: React.FC<AIChatStateProps> = ({
                               animate={{ opacity: 1, y: 0 }}
                               transition={{ duration: 0.3 }}
                             >
+                              {/* 复制按钮 */}
                               <Button
                                 variant="text"
                                 size="icon"
-                                onClick={() => {
-                                  navigator.clipboard.writeText(message.content);
-                                  console.log('复制消息:', message.id);
-                                }}
-                                className="w-8 h-8 text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-elevated)]"
-                                title="复制"
+                                onClick={() => handleCopyMessage(message.id, message.content)}
+                                className={cn(
+                                  "w-8 h-8 hover:bg-[var(--surface-elevated)] transition-all",
+                                  copiedMessageId === message.id
+                                    ? "text-[var(--status-success)]"
+                                    : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+                                )}
+                                title={copiedMessageId === message.id ? "已复制" : "复制"}
                               >
-                                <Copy className="w-4 h-4" />
+                                {copiedMessageId === message.id ? (
+                                  <Check className="w-4 h-4" />
+                                ) : (
+                                  <Copy className="w-4 h-4" />
+                                )}
                               </Button>
+
+                              {/* 重新生成按钮 */}
                               <Button
                                 variant="text"
                                 size="icon"
-                                onClick={() => console.log('点赞:', message.id)}
+                                onClick={() => handleRegenerateMessage(index)}
                                 className="w-8 h-8 text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-elevated)]"
-                                title="点赞"
+                                title="重新生成"
                               >
-                                <ThumbsUp className="w-4 h-4" />
+                                <RefreshCw className="w-4 h-4" />
                               </Button>
+
+                              {/* 点赞按钮 */}
                               <Button
                                 variant="text"
                                 size="icon"
-                                onClick={() => console.log('点踩:', message.id)}
-                                className="w-8 h-8 text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-elevated)]"
-                                title="点踩"
+                                onClick={() => handleLikeMessage(message.id)}
+                                className={cn(
+                                  "w-8 h-8 hover:bg-[var(--surface-elevated)] transition-all",
+                                  likedMessages.has(message.id)
+                                    ? "text-[var(--interactive-primary)]"
+                                    : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+                                )}
+                                title="有帮助"
                               >
-                                <ThumbsDown className="w-4 h-4" />
+                                <ThumbsUp className={cn(
+                                  "w-4 h-4",
+                                  likedMessages.has(message.id) && "fill-current"
+                                )} />
+                              </Button>
+
+                              {/* 点踩按钮 */}
+                              <Button
+                                variant="text"
+                                size="icon"
+                                onClick={() => handleDislikeMessage(message.id)}
+                                className={cn(
+                                  "w-8 h-8 hover:bg-[var(--surface-elevated)] transition-all",
+                                  dislikedMessages.has(message.id)
+                                    ? "text-[var(--status-error)]"
+                                    : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+                                )}
+                                title="没有帮助"
+                              >
+                                <ThumbsDown className={cn(
+                                  "w-4 h-4",
+                                  dislikedMessages.has(message.id) && "fill-current"
+                                )} />
                               </Button>
                             </motion.div>
                           )}

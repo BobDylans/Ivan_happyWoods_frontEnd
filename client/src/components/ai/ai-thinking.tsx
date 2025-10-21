@@ -77,3 +77,48 @@ export const AIThinkingSimple: React.FC = () => {
     </div>
   );
 };
+
+/**
+ * 骨架屏加载动画 - 更优雅的思考状态
+ */
+export const AIThinkingSkeleton: React.FC = () => {
+  return (
+    <motion.div
+      className="flex justify-start max-w-4xl mx-auto mb-6"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -20 }}
+      transition={{ duration: 0.4 }}
+    >
+      <div className="max-w-3xl bg-[var(--surface-elevated)] rounded-2xl px-4 py-3 border border-[var(--border-subtle)]">
+        {/* 骨架屏动画 */}
+        <div className="space-y-2">
+          {[85, 95, 60].map((width, index) => (
+            <motion.div
+              key={index}
+              className="h-4 bg-[var(--surface-base)] rounded"
+              style={{ width: `${width}%` }}
+              animate={{
+                opacity: [0.5, 0.8, 0.5],
+              }}
+              transition={{
+                duration: 1.5,
+                repeat: Infinity,
+                delay: index * 0.1,
+                ease: "easeInOut"
+              }}
+            />
+          ))}
+        </div>
+        
+        {/* 底部提示 */}
+        <div className="flex items-center gap-2 mt-3 pt-2 border-t border-[var(--border-subtle)]">
+          <Sparkles className="w-4 h-4 text-[var(--interactive-primary)] animate-pulse" />
+          <span className="text-xs text-[var(--text-secondary)]">
+            AI 正在生成回复...
+          </span>
+        </div>
+      </div>
+    </motion.div>
+  );
+};
