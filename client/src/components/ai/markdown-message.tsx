@@ -4,6 +4,7 @@ import React from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { cn } from '@/lib/utils';
+import { CodeBlock } from './code-block';
 
 interface MarkdownMessageProps {
   content: string;
@@ -69,28 +70,15 @@ export const MarkdownMessage: React.FC<MarkdownMessageProps> = ({
             </li>
           ),
           
-          // 代码块
+          // 代码块 - 使用 CodeBlock 组件
           code: ({ node, inline, className, children, ...props }: any) => {
-            const match = /language-(\w+)/.exec(className || '');
-            return inline ? (
-              <code
-                className="px-1.5 py-0.5 rounded bg-[var(--interactive-primary)]/10 text-[var(--interactive-primary)] text-sm font-mono"
-                {...props}
+            return (
+              <CodeBlock
+                inline={inline}
+                className={className}
               >
-                {children}
-              </code>
-            ) : (
-              <pre className="mb-4 p-4 rounded-lg bg-[var(--surface-base)] border border-[var(--border-subtle)] overflow-x-auto">
-                <code
-                  className={cn(
-                    "text-sm font-mono block",
-                    match && `language-${match[1]}`
-                  )}
-                  {...props}
-                >
-                  {children}
-                </code>
-              </pre>
+                {String(children).replace(/\n$/, '')}
+              </CodeBlock>
             );
           },
           
