@@ -21,18 +21,18 @@ export const HeroSection: React.FC = () => {
   const router = useRouter();
   const [currentSlide, setCurrentSlide] = useState(0);
 
-  // 图片数据 - 来自 Pexels
+  // 图片数据 - 来自 Pexels（优化版本 - 添加尺寸参数）
   const images = [
     {
-      url: 'https://images.pexels.com/photos/34144855/pexels-photo-34144855.jpeg',
+      url: 'https://images.pexels.com/photos/34144855/pexels-photo-34144855.jpeg?auto=compress&cs=tinysrgb&w=1920',
       alt: '清新自然场景 1',
     },
     {
-      url: 'https://images.pexels.com/photos/34343530/pexels-photo-34343530.jpeg',
+      url: 'https://images.pexels.com/photos/34343530/pexels-photo-34343530.jpeg?auto=compress&cs=tinysrgb&w=1920',
       alt: '清新自然场景 2',
     },
     {
-      url: 'https://images.pexels.com/photos/18023782/pexels-photo-18023782.jpeg',
+      url: 'https://images.pexels.com/photos/18023782/pexels-photo-18023782.jpeg?auto=compress&cs=tinysrgb&w=1920',
       alt: '清新自然场景 3',
     },
   ];
@@ -72,18 +72,13 @@ export const HeroSection: React.FC = () => {
                     src={image.url}
                     alt={image.alt}
                     fill
-                    priority={index === 0}
+                    priority={index === 0}  // 第一张图片优先加载
+                    loading={index === 0 ? 'eager' : 'lazy'}  // 其他图片懒加载
                     className="object-cover"
-                    quality={90}
+                    quality={75}  // 降低质量以提高加载速度（75 是最佳平衡点）
                     sizes="100vw"
-                  />
-                  
-                  {/* 轻微的缩放效果（Ken Burns） */}
-                  <motion.div
-                    className="absolute inset-0 bg-cover bg-center"
-                    initial={{ scale: 1 }}
-                    animate={{ scale: 1.05 }}
-                    transition={{ duration: 5, ease: "linear" }}
+                    placeholder="blur"
+                    blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCwABmgAAAA/9k="
                   />
                 </div>
               </motion.div>
