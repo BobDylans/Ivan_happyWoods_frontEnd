@@ -5,8 +5,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Logo } from '@/components/icons/logo';
-import { ThemeToggle } from '@/components/ui/theme-toggle';
-import { Button } from '@/components/ui/button/button';
 import { Menu, X, Home, MessageSquare, Leaf } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -90,8 +88,6 @@ export const Navigation: React.FC = () => {
 
             {/* 右侧操作区 */}
             <div className="flex items-center gap-3">
-              <ThemeToggle />
-              
               {/* 移动端菜单按钮 */}
               <button
                 className="md:hidden p-2 rounded-lg hover:bg-[var(--surface-elevated)] transition-colors"

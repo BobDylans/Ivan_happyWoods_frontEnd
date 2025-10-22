@@ -30,9 +30,9 @@ export const HeroSection: React.FC = () => {
       alt: '温暖的森林阳光',
     },
     {
-      // 宁静的自然风光 - 绿色草地与柔和天空
-      url: 'https://images.pexels.com/photos/1770809/pexels-photo-1770809.jpeg?auto=compress&cs=tinysrgb&w=1920',
-      alt: '宁静的自然风光',
+      // 秋日森林小径 - 金黄色的树叶和阳光
+      url: 'https://images.pexels.com/photos/1496373/pexels-photo-1496373.jpeg?auto=compress&cs=tinysrgb&w=1920',
+      alt: '秋日森林小径',
     },
     {
       // 金色麦田与夕阳 - 温暖琥珀色调
