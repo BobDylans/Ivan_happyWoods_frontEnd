@@ -1,20 +1,9 @@
 import type { Metadata } from "next";
-import { Inter, DM_Sans } from "next/font/google";
 import { ThemeProvider } from "@/providers/theme-provider";
 import "./globals.css";
 
-const inter = Inter({
-  variable: "--font-inter",
-  subsets: ["latin"],
-  display: "swap",
-});
-
-const dmSans = DM_Sans({
-  variable: "--font-dm-sans",
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
-  display: "swap",
-});
+// 使用系统字体替代 Google Fonts（避免网络问题）
+// 如果网络正常，可以恢复使用 Google Fonts
 
 export const metadata: Metadata = {
   title: "Ivan_HappyWoods Design System",
@@ -29,9 +18,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="zh-CN" suppressHydrationWarning>
-      <body
-        className={`${inter.variable} ${dmSans.variable} antialiased`}
-      >
+      <body className="antialiased font-sans">
         <ThemeProvider>
           {children}
         </ThemeProvider>
