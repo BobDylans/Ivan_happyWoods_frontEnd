@@ -21,19 +21,23 @@ export const HeroSection: React.FC = () => {
   const router = useRouter();
   const [currentSlide, setCurrentSlide] = useState(0);
 
-  // 图片数据 - 来自 Pexels（优化版本 - 添加尺寸参数）
+  // 图片数据 - 精心挑选的温暖自然主题图片
+  // 主题：森林、阳光、温暖色调、自然氛围
   const images = [
     {
-      url: 'https://images.pexels.com/photos/34144855/pexels-photo-34144855.jpeg?auto=compress&cs=tinysrgb&w=1920',
-      alt: '清新自然场景 1',
+      // 温暖的森林阳光 - 金色光线穿过树林
+      url: 'https://images.pexels.com/photos/1166209/pexels-photo-1166209.jpeg?auto=compress&cs=tinysrgb&w=1920',
+      alt: '温暖的森林阳光',
     },
     {
-      url: 'https://images.pexels.com/photos/34343530/pexels-photo-34343530.jpeg?auto=compress&cs=tinysrgb&w=1920',
-      alt: '清新自然场景 2',
+      // 宁静的自然风光 - 绿色草地与柔和天空
+      url: 'https://images.pexels.com/photos/1770809/pexels-photo-1770809.jpeg?auto=compress&cs=tinysrgb&w=1920',
+      alt: '宁静的自然风光',
     },
     {
-      url: 'https://images.pexels.com/photos/18023782/pexels-photo-18023782.jpeg?auto=compress&cs=tinysrgb&w=1920',
-      alt: '清新自然场景 3',
+      // 金色麦田与夕阳 - 温暖琥珀色调
+      url: 'https://images.pexels.com/photos/2383284/pexels-photo-2383284.jpeg?auto=compress&cs=tinysrgb&w=1920',
+      alt: '金色麦田与夕阳',
     },
   ];
 

@@ -1,16 +1,14 @@
+import { Navigation } from "@/components/layout/navigation";
 import { HeroSection } from "@/components/home/hero-section";
 import { FeaturesSection } from "@/components/home/features-section";
 import { CTASection } from "@/components/home/cta-section";
 import { Logo } from "@/components/icons/logo";
-import { ThemeToggle } from "@/components/ui/theme-toggle";
 
 export default function Home() {
   return (
     <main className="min-h-screen bg-[var(--surface-base)]">
-      {/* 固定顶部的主题切换按钮 */}
-      <div className="fixed top-6 right-6 z-50">
-        <ThemeToggle />
-      </div>
+      {/* 全局导航栏 */}
+      <Navigation />
 
       {/* Hero Section - 全屏轮播 */}
       <HeroSection />

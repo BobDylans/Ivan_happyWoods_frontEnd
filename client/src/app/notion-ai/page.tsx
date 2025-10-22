@@ -1,3 +1,4 @@
+import { Navigation } from '@/components/layout/navigation';
 import { NotionAIInterface } from '@/components/ai/notion-ai-interface';
 
 export const metadata = {
@@ -15,8 +16,11 @@ export const metadata = {
  */
 export default function NotionAIPage() {
   return (
-    <div className="w-full h-screen">
-      <NotionAIInterface />
+    <div className="w-full h-screen flex flex-col">
+      <Navigation />
+      <div className="flex-1 overflow-hidden">
+        <NotionAIInterface />
+      </div>
     </div>
   );
 }

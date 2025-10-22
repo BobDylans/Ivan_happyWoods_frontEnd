@@ -1,3 +1,4 @@
+import { Navigation } from "@/components/layout/navigation";
 import { Heading } from "@/components/ui/heading/heading";
 import { Text } from "@/components/ui/text/text";
 import { Caption } from "@/components/ui/text/caption";
@@ -9,20 +10,17 @@ import {
   CardContent,
 } from "@/components/ui/card/card";
 import { Logo } from "@/components/icons/logo";
-import { Button } from "@/components/ui/button/button";
-import { ArrowLeft, Type, AlignLeft } from "lucide-react";
-import Link from "next/link";
+import { Type, AlignLeft } from "lucide-react";
 
 export default function TypographyPage() {
   return (
-    <main className="min-h-screen p-8 bg-[var(--surface-base)]">
+    <main className="min-h-screen bg-[var(--surface-base)]">
+      {/* 全局导航栏 */}
+      <Navigation />
+      
+      <div className="p-8">
       {/* Header */}
       <div className="max-w-5xl mx-auto mb-12">
-        <Link href="/">
-          <Button variant="text" size="sm" leftIcon={<ArrowLeft className="w-4 h-4" />}>
-            返回首页
-          </Button>
-        </Link>
         <div className="mt-6">
           <Logo size="default" />
           <Heading level="h1" className="mt-6">
@@ -448,6 +446,7 @@ export default function TypographyPage() {
         <Text variant="body-sm">
           Typography system designed for readability, hierarchy, and accessibility
         </Text>
+      </div>
       </div>
     </main>
   );
