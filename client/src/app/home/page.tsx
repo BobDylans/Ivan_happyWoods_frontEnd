@@ -116,7 +116,7 @@ export default function HomePage() {
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12">
               <Link href="/notion-ai">
                 <Button variant="primary" size="lg" leftIcon={<Sparkles className="w-5 h-5" />}>
-                  开始体验
+                  开始对话
                 </Button>
               </Link>
               <Button 
@@ -125,7 +125,7 @@ export default function HomePage() {
                 rightIcon={<Github className="w-5 h-5" />}
                 onClick={() => window.open('https://github.com', '_blank')}
               >
-                查看源码
+                了解更多
               </Button>
             </div>
             

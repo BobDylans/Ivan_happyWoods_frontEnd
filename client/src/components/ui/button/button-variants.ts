@@ -68,20 +68,17 @@ export const buttonVariants = cva(
         // 小尺寸
         sm: [
           "h-9 px-3 text-sm",
-          "has-[>svg]:px-2.5",
           "[&_svg]:size-4",
         ],
         // 默认尺寸
         default: [
           "h-11 px-6 text-base",
-          "has-[>svg]:px-4",
           "[&_svg]:size-5",
         ],
         // 大尺寸
         lg: [
           "h-14 px-8 text-lg",
-          "has-[>svg]:px-6",
-          "[&_svg]:size-6",
+          "[&_svg]:size-5",
         ],
         // 图标按钮 - 正方形
         icon: [

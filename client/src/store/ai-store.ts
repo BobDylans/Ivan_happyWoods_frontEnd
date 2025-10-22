@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import type { WorkflowState, WorkflowEvent } from '@/types/workflow';
 
 // ============================================================================
 // Types
@@ -11,6 +12,8 @@ export interface Message {
   content: string;
   timestamp: Date;
   isStreaming?: boolean;
+  /** 工作流执行状态（可选） */
+  workflowState?: WorkflowState;
 }
 
 export interface Conversation {
@@ -30,6 +33,9 @@ export interface AIState {
   isGenerating: boolean;
   isSidebarOpen: boolean;
   
+  // 🆕 工作流状态
+  currentWorkflowState: WorkflowState | null;
+  
   // Actions - 对话管理
   createConversation: () => string;
   deleteConversation: (id: string) => void;
@@ -46,6 +52,12 @@ export interface AIState {
   setIsGenerating: (isGenerating: boolean) => void;
   toggleSidebar: () => void;
   setSidebarOpen: (open: boolean) => void;
+  
+  // 🆕 Actions - 工作流
+  initWorkflowState: () => void;
+  updateWorkflowState: (event: WorkflowEvent) => void;
+  attachWorkflowToMessage: (messageId: string) => void;
+  clearWorkflowState: () => void;
   
   // Getters
   getCurrentConversation: () => Conversation | null;
@@ -88,6 +100,7 @@ export const useAIStore = create<AIState>()(
       conversations: {},
       isGenerating: false,
       isSidebarOpen: true,
+      currentWorkflowState: null,
       
       // ========================================================================
       // Conversation Actions
@@ -277,6 +290,79 @@ export const useAIStore = create<AIState>()(
       },
       
       // ========================================================================
+      // 🆕 Workflow Actions
+      // ========================================================================
+      
+      initWorkflowState: () => {
+        set({
+          currentWorkflowState: {
+            isRunning: true,
+            nodes: [],
+            tools: [],
+            thinkingPhases: [],
+            routeDecisions: [],
+            isComplete: false,
+          },
+        });
+      },
+      
+      updateWorkflowState: (event: WorkflowEvent) => {
+        set((state) => {
+          if (!state.currentWorkflowState) {
+            // 自动初始化
+            return {
+              currentWorkflowState: updateWorkflowStateFromEvent(
+                {
+                  isRunning: true,
+                  nodes: [],
+                  tools: [],
+                  thinkingPhases: [],
+                  routeDecisions: [],
+                  isComplete: false,
+                },
+                event
+              ),
+            };
+          }
+          
+          return {
+            currentWorkflowState: updateWorkflowStateFromEvent(
+              state.currentWorkflowState,
+              event
+            ),
+          };
+        });
+      },
+      
+      attachWorkflowToMessage: (messageId: string) => {
+        const { currentConversationId, conversations, currentWorkflowState } = get();
+        if (!currentConversationId || !currentWorkflowState) return;
+        
+        const conversation = conversations[currentConversationId];
+        if (!conversation) return;
+        
+        const updatedMessages = conversation.messages.map((msg) =>
+          msg.id === messageId
+            ? { ...msg, workflowState: currentWorkflowState }
+            : msg
+        );
+        
+        set((state) => ({
+          conversations: {
+            ...state.conversations,
+            [currentConversationId]: {
+              ...conversation,
+              messages: updatedMessages,
+            },
+          },
+        }));
+      },
+      
+      clearWorkflowState: () => {
+        set({ currentWorkflowState: null });
+      },
+      
+      // ========================================================================
       // Getters
       // ========================================================================
       
@@ -314,6 +400,122 @@ export const useAIStore = create<AIState>()(
  */
 function generateId(): string {
   return `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+}
+
+/**
+ * 🆕 根据工作流事件更新状态
+ */
+function updateWorkflowStateFromEvent(
+  state: WorkflowState,
+  event: WorkflowEvent
+): WorkflowState {
+  const newState = { ...state };
+
+  // Graph 层事件
+  if (event.level === 'graph') {
+    switch (event.type) {
+      case 'workflow_started':
+        newState.isRunning = true;
+        newState.startTime = event.timestamp;
+        break;
+
+      case 'node_started': {
+        const existingNode = newState.nodes.find((n) => n.name === event.data.node);
+        if (!existingNode) {
+          newState.nodes.push({
+            name: event.data.node,
+            displayName: event.data.display_name,
+            status: 'running',
+            startTime: event.timestamp,
+          });
+        } else {
+          existingNode.status = 'running';
+          existingNode.startTime = event.timestamp;
+        }
+        break;
+      }
+
+      case 'node_finished': {
+        const node = newState.nodes.find((n) => n.name === event.data.node);
+        if (node) {
+          node.status = 'completed';
+          node.endTime = event.timestamp;
+          node.durationMs = event.data.duration_ms;
+        }
+        break;
+      }
+
+      case 'route_decision':
+        newState.routeDecisions.push({
+          from: event.data.from,
+          to: event.data.to,
+          reason: event.data.reason,
+          timestamp: event.timestamp,
+        });
+        break;
+
+      case 'workflow_complete':
+        newState.isRunning = false;
+        newState.isComplete = true;
+        newState.endTime = event.timestamp;
+        newState.totalDurationMs = event.data.total_duration_ms;
+        newState.status = event.data.status;
+        break;
+    }
+  }
+  // Node 层事件
+  else if (event.level === 'node') {
+    switch (event.type) {
+      case 'thinking_phase':
+        newState.thinkingPhases.push({
+          phase: event.data.phase,
+          details: event.data.details,
+          timestamp: event.timestamp,
+        });
+        break;
+
+      case 'tool_call_pending': {
+        const existingTool = newState.tools.find((t) => t.name === event.data.tool);
+        if (!existingTool) {
+          newState.tools.push({
+            name: event.data.tool,
+            status: 'pending',
+            args: event.data.args,
+            startTime: event.timestamp,
+          });
+        }
+        break;
+      }
+
+      case 'tool_executing': {
+        const tool = newState.tools.find((t) => t.name === event.data.tool);
+        if (tool) {
+          tool.status = 'executing';
+        }
+        break;
+      }
+
+      case 'tool_result': {
+        const tool = newState.tools.find((t) => t.name === event.data.tool);
+        if (tool) {
+          tool.status = event.data.success ? 'success' : 'failed';
+          tool.result = {
+            success: event.data.success,
+            summary: event.data.summary,
+          };
+          tool.endTime = event.timestamp;
+          tool.durationMs = event.data.duration_ms;
+        }
+        break;
+      }
+
+      case 'llm_streaming':
+        // LLM 流式输出事件可以记录但不改变主状态
+        break;
+    }
+  }
+
+  return newState;
 }
 
 /**

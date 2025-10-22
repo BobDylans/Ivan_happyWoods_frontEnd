@@ -366,6 +366,227 @@
         .chat-messages::-webkit-scrollbar-thumb:hover {
             background: #94a3b8;
         }
+
+        /* ============================================================
+           🆕 执行流程可视化样式
+           ============================================================ */
+        
+        /* 流程时间线容器 */
+        .workflow-timeline {
+            background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+            border-radius: 12px;
+            padding: 12px;
+            margin-bottom: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            animation: slideIn 0.3s ease-out;
+        }
+
+        /* 时间线标题 */
+        .timeline-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 10px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #374151;
+        }
+
+        .timeline-header .icon {
+            font-size: 16px;
+        }
+
+        /* 节点状态指示器 */
+        .node-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            background: white;
+            border-radius: 8px;
+            margin-bottom: 6px;
+            font-size: 12px;
+            transition: all 0.3s;
+        }
+
+        .node-indicator.running {
+            background: #dbeafe;
+            border-left: 3px solid #3b82f6;
+        }
+
+        .node-indicator.completed {
+            background: #d1fae5;
+            border-left: 3px solid #10b981;
+        }
+
+        .node-indicator.error {
+            background: #fee2e2;
+            border-left: 3px solid #ef4444;
+        }
+
+        .node-indicator .node-name {
+            font-weight: 600;
+            color: #1f2937;
+        }
+
+        .node-indicator .node-status {
+            margin-left: auto;
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        .node-indicator.running .node-status {
+            background: #3b82f6;
+            color: white;
+            animation: pulse 1.5s infinite;
+        }
+
+        .node-indicator.completed .node-status {
+            background: #10b981;
+            color: white;
+        }
+
+        .node-indicator .node-duration {
+            font-size: 10px;
+            color: #6b7280;
+        }
+
+        /* 工具执行卡片 */
+        .tool-card {
+            background: white;
+            border-radius: 8px;
+            padding: 10px;
+            margin: 6px 0;
+            border-left: 3px solid #f59e0b;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .tool-card-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 6px;
+        }
+
+        .tool-card-header .tool-icon {
+            font-size: 14px;
+        }
+
+        .tool-card-header .tool-name {
+            font-weight: 600;
+            font-size: 12px;
+            color: #1f2937;
+        }
+
+        .tool-card-header .tool-status {
+            margin-left: auto;
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        .tool-card.pending .tool-status {
+            background: #f3f4f6;
+            color: #6b7280;
+        }
+
+        .tool-card.executing .tool-status {
+            background: #fef3c7;
+            color: #92400e;
+            animation: pulse 1.5s infinite;
+        }
+
+        .tool-card.success .tool-status {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .tool-card.failed .tool-status {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .tool-card-body {
+            font-size: 11px;
+            color: #6b7280;
+            line-height: 1.4;
+        }
+
+        .tool-card-body .tool-args {
+            background: #f9fafb;
+            padding: 4px 6px;
+            border-radius: 4px;
+            margin: 4px 0;
+            font-family: monospace;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .tool-card-body .tool-result {
+            margin-top: 4px;
+            padding: 4px 6px;
+            background: #f0fdf4;
+            border-radius: 4px;
+        }
+
+        /* 思考阶段指示 */
+        .thinking-phase {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 8px;
+            background: #e0f2fe;
+            border-radius: 6px;
+            font-size: 11px;
+            color: #075985;
+            margin: 4px 0;
+        }
+
+        .thinking-phase .phase-icon {
+            animation: spin 2s linear infinite;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* 路由决策指示 */
+        .route-decision {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 10px;
+            background: #fef3c7;
+            border-radius: 6px;
+            font-size: 11px;
+            color: #78350f;
+            margin: 4px 0;
+        }
+
+        .route-decision .arrow {
+            font-size: 14px;
+        }
+
+        /* 工作流完成横幅 */
+        .workflow-complete {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 12px;
+            background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #065f46;
+            margin-top: 8px;
+        }
+
+        .workflow-complete .complete-icon {
+            font-size: 16px;
+        }
     </style>
 </head>
 <body>
@@ -580,6 +801,194 @@
             }
         }
 
+        // ============================================================
+        // 🆕 执行流程可视化辅助函数
+        // ============================================================
+        
+        let currentTimelineContainer = null;
+        let currentNodesMap = new Map(); // node_name -> element
+        let currentToolCardsMap = new Map(); // tool_name -> element
+
+        // 创建时间线容器
+        function createTimelineContainer() {
+            const container = document.createElement('div');
+            container.className = 'workflow-timeline';
+            container.innerHTML = `
+                <div class="timeline-header">
+                    <span class="icon">⏱️</span>
+                    <span>执行流程</span>
+                </div>
+                <div class="timeline-body"></div>
+            `;
+            chatMessages.appendChild(container);
+            currentTimelineContainer = container;
+            currentNodesMap.clear();
+            currentToolCardsMap.clear();
+            
+            // 滚动到底部
+            requestAnimationFrame(() => {
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            });
+            
+            return container;
+        }
+
+        // 显示节点开始
+        function showNodeStarted(nodeName, displayName) {
+            if (!currentTimelineContainer) {
+                createTimelineContainer();
+            }
+            
+            const body = currentTimelineContainer.querySelector('.timeline-body');
+            const nodeDiv = document.createElement('div');
+            nodeDiv.className = 'node-indicator running';
+            nodeDiv.innerHTML = `
+                <span class="node-name">${displayName || nodeName}</span>
+                <span class="node-status">运行中...</span>
+            `;
+            body.appendChild(nodeDiv);
+            currentNodesMap.set(nodeName, nodeDiv);
+            
+            requestAnimationFrame(() => {
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            });
+        }
+
+        // 显示节点完成
+        function showNodeFinished(nodeName, displayName, durationMs) {
+            const nodeDiv = currentNodesMap.get(nodeName);
+            if (nodeDiv) {
+                nodeDiv.className = 'node-indicator completed';
+                nodeDiv.innerHTML = `
+                    <span class="node-name">${displayName || nodeName}</span>
+                    <span class="node-duration">${durationMs.toFixed(0)}ms</span>
+                    <span class="node-status">✓ 完成</span>
+                `;
+            }
+            
+            requestAnimationFrame(() => {
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            });
+        }
+
+        // 显示路由决策
+        function showRouteDecision(from, to, reason) {
+            if (!currentTimelineContainer) return;
+            
+            const body = currentTimelineContainer.querySelector('.timeline-body');
+            const routeDiv = document.createElement('div');
+            routeDiv.className = 'route-decision';
+            routeDiv.innerHTML = `
+                <span>${from}</span>
+                <span class="arrow">→</span>
+                <span>${to}</span>
+                <span style="margin-left: 8px; color: #92400e;">(${reason})</span>
+            `;
+            body.appendChild(routeDiv);
+            
+            requestAnimationFrame(() => {
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            });
+        }
+
+        // 显示思考阶段
+        function showThinkingPhase(phase, details) {
+            if (!currentTimelineContainer) return;
+            
+            const body = currentTimelineContainer.querySelector('.timeline-body');
+            const phaseDiv = document.createElement('div');
+            phaseDiv.className = 'thinking-phase';
+            phaseDiv.innerHTML = `
+                <span class="phase-icon">🤔</span>
+                <span>${phase}</span>
+                ${details ? `<span style="color: #64748b;">- ${details}</span>` : ''}
+            `;
+            body.appendChild(phaseDiv);
+            
+            requestAnimationFrame(() => {
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            });
+        }
+
+        // 显示工具调用排队
+        function showToolPending(toolName, args) {
+            if (!currentTimelineContainer) return;
+            
+            const body = currentTimelineContainer.querySelector('.timeline-body');
+            const toolCard = document.createElement('div');
+            toolCard.className = 'tool-card pending';
+            
+            const argsStr = JSON.stringify(args).substring(0, 100);
+            toolCard.innerHTML = `
+                <div class="tool-card-header">
+                    <span class="tool-icon">🔧</span>
+                    <span class="tool-name">${toolName}</span>
+                    <span class="tool-status">等待执行</span>
+                </div>
+                <div class="tool-card-body">
+                    <div class="tool-args">参数: ${argsStr}</div>
+                </div>
+            `;
+            body.appendChild(toolCard);
+            currentToolCardsMap.set(toolName, toolCard);
+            
+            requestAnimationFrame(() => {
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            });
+        }
+
+        // 显示工具执行中
+        function showToolExecuting(toolName) {
+            const toolCard = currentToolCardsMap.get(toolName);
+            if (toolCard) {
+                toolCard.className = 'tool-card executing';
+                const status = toolCard.querySelector('.tool-status');
+                if (status) status.textContent = '执行中...';
+            }
+        }
+
+        // 显示工具结果
+        function showToolResult(toolName, success, summary, durationMs) {
+            const toolCard = currentToolCardsMap.get(toolName);
+            if (toolCard) {
+                toolCard.className = `tool-card ${success ? 'success' : 'failed'}`;
+                const status = toolCard.querySelector('.tool-status');
+                if (status) status.textContent = success ? '✓ 成功' : '✗ 失败';
+                
+                const body = toolCard.querySelector('.tool-card-body');
+                if (body) {
+                    body.innerHTML += `
+                        <div class="tool-result">
+                            ${summary}
+                            ${durationMs ? `<span style="color: #6b7280; margin-left: 8px;">(${durationMs.toFixed(0)}ms)</span>` : ''}
+                        </div>
+                    `;
+                }
+            }
+            
+            requestAnimationFrame(() => {
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            });
+        }
+
+        // 显示工作流完成
+        function showWorkflowComplete(totalDurationMs) {
+            if (!currentTimelineContainer) return;
+            
+            const body = currentTimelineContainer.querySelector('.timeline-body');
+            const completeDiv = document.createElement('div');
+            completeDiv.className = 'workflow-complete';
+            completeDiv.innerHTML = `
+                <span><span class="complete-icon">✅</span> 工作流完成</span>
+                <span>总耗时: ${totalDurationMs.toFixed(0)}ms</span>
+            `;
+            body.appendChild(completeDiv);
+            
+            requestAnimationFrame(() => {
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            });
+        }
+
         // 处理流式响应 - 优化版
         async function handleStreamingResponse(response) {
             const reader = response.body.getReader();
@@ -668,6 +1077,44 @@
                             });
                         } else if (data.type === 'error') {
                             throw new Error(data.error || '流式响应错误');
+                        }
+                        // 🆕 处理执行流程可视化事件
+                        else if (data.level === 'graph') {
+                            // Graph 层事件（调度级别）
+                            if (data.type === 'workflow_started') {
+                                console.log('🏁 工作流开始');
+                                createTimelineContainer();
+                            } else if (data.type === 'node_started') {
+                                console.log('🟦 节点开始:', data.data.display_name);
+                                showNodeStarted(data.data.node, data.data.display_name);
+                            } else if (data.type === 'node_finished') {
+                                console.log('✅ 节点完成:', data.data.display_name, data.data.duration_ms + 'ms');
+                                showNodeFinished(data.data.node, data.data.display_name, data.data.duration_ms);
+                            } else if (data.type === 'route_decision') {
+                                console.log('🔀 路由决策:', data.data.from, '→', data.data.to);
+                                showRouteDecision(data.data.from, data.data.to, data.data.reason);
+                            } else if (data.type === 'workflow_complete') {
+                                console.log('🎉 工作流完成，总耗时:', data.data.total_duration_ms + 'ms');
+                                showWorkflowComplete(data.data.total_duration_ms);
+                            }
+                        } else if (data.level === 'node') {
+                            // Node 层事件（执行级别）
+                            if (data.type === 'thinking_phase') {
+                                console.log('🤔 思考阶段:', data.data.phase);
+                                showThinkingPhase(data.data.phase, data.data.details);
+                            } else if (data.type === 'tool_call_pending') {
+                                console.log('🔧 工具排队:', data.data.tool);
+                                showToolPending(data.data.tool, data.data.args);
+                            } else if (data.type === 'tool_executing') {
+                                console.log('⚙️ 工具执行中:', data.data.tool);
+                                showToolExecuting(data.data.tool);
+                            } else if (data.type === 'tool_result') {
+                                console.log('📊 工具结果:', data.data.tool, data.data.success ? '成功' : '失败');
+                                showToolResult(data.data.tool, data.data.success, data.data.summary, data.data.duration_ms);
+                            } else if (data.type === 'llm_streaming') {
+                                console.log('💬 LLM流式阶段:', data.data.phase);
+                                showThinkingPhase(data.data.phase, data.data.details);
+                            }
                         }
                     } catch (parseError) {
                         console.warn('⚠️ 解析 SSE 数据失败:', line, parseError);

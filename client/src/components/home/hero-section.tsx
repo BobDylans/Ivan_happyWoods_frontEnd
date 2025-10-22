@@ -35,9 +35,9 @@ export const HeroSection: React.FC = () => {
       alt: '秋日森林小径',
     },
     {
-      // 金色麦田与夕阳 - 温暖琥珀色调
-      url: 'https://images.pexels.com/photos/2383284/pexels-photo-2383284.jpeg?auto=compress&cs=tinysrgb&w=1920',
-      alt: '金色麦田与夕阳',
+      // 日出森林湖泊 - 温暖金色倒影与宁静氛围
+      url: 'https://images.pexels.com/photos/1323550/pexels-photo-1323550.jpeg?auto=compress&cs=tinysrgb&w=1920',
+      alt: '日出森林湖泊',
     },
   ];
 
@@ -154,19 +154,17 @@ export const HeroSection: React.FC = () => {
             {/* 主 CTA */}
             <Button
               variant="primary"
-              size="large"
+              size="lg"
               onClick={handleStartChat}
               className="group bg-white hover:bg-white/90 text-[var(--interactive-primary)] shadow-2xl hover:shadow-3xl transition-all duration-300 px-8 py-6 text-lg font-semibold"
             >
-              <Sparkles className="w-5 h-5 mr-2 group-hover:rotate-12 transition-transform" />
               开始对话
-              <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
             </Button>
 
             {/* 次要 CTA */}
             <Button
-              variant="outline"
-              size="large"
+              variant="secondary"
+              size="lg"
               onClick={() => {
                 // 平滑滚动到特性区域
                 document.getElementById('features')?.scrollIntoView({ 
