@@ -4,7 +4,19 @@
 
 ---
 
-## 🚀 快速启动
+## � 项目文档
+
+所有文档已整理到 [`docs/`](./docs/) 目录，查看:
+- **[快速启动指南](./docs/快速启动指南.md)** - 详细启动步骤
+- **[API 接口文档](./docs/api手册.md)** - 后端 API 规范
+- **[Markdown 渲染指南](./docs/MARKDOWN-RENDERING-GUIDE.md)** - 格式规范
+- **[GitHub 部署指南](./docs/GITHUB-UPLOAD-GUIDE.md)** - 部署流程
+
+完整文档目录: [docs/README.md](./docs/README.md)
+
+---
+
+## �🚀 快速启动
 
 ### 方式 1: 使用启动脚本（推荐）
 

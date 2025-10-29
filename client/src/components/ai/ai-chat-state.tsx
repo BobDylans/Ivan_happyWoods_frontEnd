@@ -2,13 +2,16 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, Send, Sparkles, Plus, Paperclip, Smile, Copy, ThumbsUp, ThumbsDown, ArrowDown, RefreshCw, Check } from 'lucide-react';
+import { ArrowLeft, Send, Sparkles, Plus, Paperclip, Smile, Copy, ThumbsUp, ThumbsDown, ArrowDown, RefreshCw, Check, Trash2, Edit2, X } from 'lucide-react';
 import { Button } from '@/components/ui/button/button';
 import { Logo } from '@/components/icons/logo';
 import { NotionSidebar } from './notion-sidebar';
 import { AIThinking } from './ai-thinking';
 import { MarkdownMessage } from './markdown-message';
 import { DateSeparator } from './date-separator';
+import { MessageSkeleton, ThinkingIndicator } from '@/components/ui/skeleton';
+import { WorkflowTimeline, type WorkflowEventData } from './workflow-visual';
+import { useKeyboardShortcuts } from '@/hooks/use-keyboard-shortcuts';
 import { cn } from '@/lib/utils';
 
 interface Message {
@@ -17,12 +20,22 @@ interface Message {
   content: string;
   timestamp: Date;
   isStreaming?: boolean;
+  workflowEvents?: WorkflowEventData[]; // 工作流事件
+  error?: {
+    message: string;
+    type: string;
+    canRetry: boolean;
+    retryCount: number;
+  };
 }
 
 interface AIChatStateProps {
   messages: Message[];
   onMessage: (message: string) => void;
   onReset: () => void;
+  onDeleteMessage?: (messageId: string) => void;
+  onEditMessage?: (messageId: string, newContent: string) => void;
+  onRetryMessage?: (messageId: string) => void;
   isThinking?: boolean;
 }
 
@@ -39,6 +52,9 @@ export const AIChatState: React.FC<AIChatStateProps> = ({
   messages,
   onMessage,
   onReset,
+  onDeleteMessage,
+  onEditMessage,
+  onRetryMessage,
   isThinking = false
 }) => {
   const [input, setInput] = useState('');
@@ -48,9 +64,73 @@ export const AIChatState: React.FC<AIChatStateProps> = ({
   const [copiedMessageId, setCopiedMessageId] = useState<string | null>(null);
   const [likedMessages, setLikedMessages] = useState<Set<string>>(new Set());
   const [dislikedMessages, setDislikedMessages] = useState<Set<string>>(new Set());
+  const [editingMessageId, setEditingMessageId] = useState<string | null>(null);
+  const [editingContent, setEditingContent] = useState('');
+  const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
+  const [showShortcutsHelp, setShowShortcutsHelp] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  const editTextareaRef = useRef<HTMLTextAreaElement>(null);
+
+  // 注册键盘快捷键
+  useKeyboardShortcuts([
+    {
+      key: 'n',
+      ctrlOrCmd: true,
+      handler: () => {
+        if (window.confirm('确定要开始新对话吗？当前对话将被清除。')) {
+          onReset();
+        }
+      },
+      description: '新建对话'
+    },
+    {
+      key: '/',
+      ctrlOrCmd: true,
+      handler: () => {
+        // TODO: 打开搜索功能
+        console.log('搜索功能待实现');
+      },
+      description: '搜索对话'
+    },
+    {
+      key: 'k',
+      ctrlOrCmd: true,
+      handler: () => {
+        // TODO: 打开命令菜单
+        console.log('命令菜单待实现');
+      },
+      description: '打开命令菜单'
+    },
+    {
+      key: 'Escape',
+      handler: () => {
+        // 取消编辑
+        if (editingMessageId) {
+          setEditingMessageId(null);
+          setEditingContent('');
+        }
+        // 取消删除确认
+        if (deleteConfirmId) {
+          setDeleteConfirmId(null);
+        }
+        // 关闭快捷键帮助
+        if (showShortcutsHelp) {
+          setShowShortcutsHelp(false);
+        }
+      },
+      description: '取消/关闭'
+    },
+    {
+      key: '?',
+      ctrlOrCmd: true,
+      handler: () => {
+        setShowShortcutsHelp(!showShortcutsHelp);
+      },
+      description: '显示快捷键帮助'
+    }
+  ]);
 
   // 滚动到底部
   const scrollToBottom = (smooth = true) => {
@@ -75,12 +155,23 @@ export const AIChatState: React.FC<AIChatStateProps> = ({
     }
   };
 
-  // 只在非用户滚动时自动滚动
+  // 监听消息变化和思考状态，自动滚动
   useEffect(() => {
     if (!isUserScrolling) {
       scrollToBottom(true);
     }
-  }, [messages, isUserScrolling]);
+  }, [messages, isThinking, isUserScrolling]);
+
+  // 当消息数量增加时，强制滚动（用户发送新消息）
+  const prevMessageCountRef = useRef(messages.length);
+  useEffect(() => {
+    if (messages.length > prevMessageCountRef.current) {
+      // 新消息到来，重置用户滚动状态并滚动到底部
+      setIsUserScrolling(false);
+      setTimeout(() => scrollToBottom(true), 100);
+    }
+    prevMessageCountRef.current = messages.length;
+  }, [messages.length]);
 
   // 自动调整输入框高度
   useEffect(() => {
@@ -95,6 +186,9 @@ export const AIChatState: React.FC<AIChatStateProps> = ({
     if (input.trim() && !isComposing) {
       onMessage(input.trim());
       setInput('');
+      // 发送消息后，强制滚动到底部
+      setIsUserScrolling(false);
+      setTimeout(() => scrollToBottom(true), 100);
     }
   };
 
@@ -158,19 +252,67 @@ export const AIChatState: React.FC<AIChatStateProps> = ({
     });
   };
 
-  // 重新生成回复
+  // 重新生成消息
   const handleRegenerateMessage = (messageIndex: number) => {
-    // 找到该消息对应的用户问题
+    // 找到该 AI 消息对应的用户消息
     if (messageIndex > 0) {
       const userMessage = messages[messageIndex - 1];
-      if (userMessage && userMessage.role === 'user') {
-        // 重新发送用户消息
+      if (userMessage.role === 'user') {
         onMessage(userMessage.content);
       }
     }
   };
 
-  // 根据对话内容生成标题
+  // 开始编辑消息
+  const handleStartEdit = (messageId: string, content: string) => {
+    setEditingMessageId(messageId);
+    setEditingContent(content);
+    // 聚焦到编辑框
+    setTimeout(() => {
+      editTextareaRef.current?.focus();
+    }, 0);
+  };
+
+  // 取消编辑
+  const handleCancelEdit = () => {
+    setEditingMessageId(null);
+    setEditingContent('');
+  };
+
+  // 保存编辑
+  const handleSaveEdit = () => {
+    if (editingMessageId && editingContent.trim() && onEditMessage) {
+      onEditMessage(editingMessageId, editingContent.trim());
+      setEditingMessageId(null);
+      setEditingContent('');
+    }
+  };
+
+  // 删除消息 (带确认)
+  const handleDeleteClick = (messageId: string) => {
+    setDeleteConfirmId(messageId);
+    // 3秒后自动取消确认状态
+    setTimeout(() => {
+      setDeleteConfirmId(null);
+    }, 3000);
+  };
+
+  // 确认删除
+  const handleConfirmDelete = (messageId: string) => {
+    if (onDeleteMessage) {
+      onDeleteMessage(messageId);
+      setDeleteConfirmId(null);
+    }
+  };
+
+  // 编辑框自动调整高度
+  useEffect(() => {
+    const textarea = editTextareaRef.current;
+    if (textarea && editingMessageId) {
+      textarea.style.height = 'auto';
+      textarea.style.height = Math.min(textarea.scrollHeight, 200) + 'px';
+    }
+  }, [editingContent, editingMessageId]);  // 根据对话内容生成标题
   const getChatTitle = () => {
     if (messages.length === 0) {
       return "新对话";
@@ -271,11 +413,6 @@ export const AIChatState: React.FC<AIChatStateProps> = ({
                 <DateSeparator date={new Date()} sessionTitle="HappyWoods AI" />
                 
                 {messages.map((message, index) => {
-                  // 跳过空的 AI 消息（流式输出占位符）
-                  if (message.role === 'assistant' && !message.content) {
-                    return null;
-                  }
-                  
                   return (
                     <motion.div
                       key={message.id}
@@ -296,104 +433,233 @@ export const AIChatState: React.FC<AIChatStateProps> = ({
                       )}>
                         {message.role === 'user' ? (
                           // 用户消息
-                          <div className="bg-[var(--interactive-primary)] text-white rounded-2xl px-4 py-3">
-                            <p className="text-sm leading-relaxed">{message.content}</p>
+                          <div className="group relative">
+                            {editingMessageId === message.id ? (
+                              // 编辑模式
+                              <div className="bg-[var(--surface-elevated)] border-2 border-[var(--interactive-primary)] rounded-2xl p-3 shadow-sm">
+                                <textarea
+                                  ref={editTextareaRef}
+                                  value={editingContent}
+                                  onChange={(e) => setEditingContent(e.target.value)}
+                                  className="w-full bg-transparent text-[var(--text-primary)] text-sm leading-relaxed resize-none outline-none"
+                                  rows={3}
+                                  onKeyDown={(e) => {
+                                    if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+                                      e.preventDefault();
+                                      handleSaveEdit();
+                                    }
+                                    if (e.key === 'Escape') {
+                                      handleCancelEdit();
+                                    }
+                                  }}
+                                />
+                                <div className="flex items-center justify-end gap-2 mt-2 pt-2">
+                                  <Button
+                                    variant="text"
+                                    size="sm"
+                                    onClick={handleCancelEdit}
+                                    className="text-xs"
+                                  >
+                                    <X className="w-3 h-3 mr-1" />
+                                    取消
+                                  </Button>
+                                  <Button
+                                    variant="primary"
+                                    size="sm"
+                                    onClick={handleSaveEdit}
+                                    disabled={!editingContent.trim()}
+                                    className="text-xs"
+                                  >
+                                    <Check className="w-3 h-3 mr-1" />
+                                    保存并重新生成
+                                  </Button>
+                                </div>
+                                <p className="text-[10px] text-[var(--text-tertiary)] mt-1 opacity-60">
+                                  Ctrl+Enter 保存 • Esc 取消
+                                </p>
+                              </div>
+                            ) : (
+                              // 显示模式
+                              <>
+                                <div className="bg-[var(--interactive-primary)] text-white rounded-2xl px-4 py-3">
+                                  <p className="text-sm leading-relaxed whitespace-pre-wrap">{message.content}</p>
+                                </div>
+                                
+                                {/* 用户消息操作按钮 - 鼠标悬停显示 */}
+                                <div className="absolute -left-14 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col gap-1">
+                                  {onEditMessage && (
+                                    <Button
+                                      variant="text"
+                                      size="icon"
+                                      onClick={() => handleStartEdit(message.id, message.content)}
+                                      className="w-8 h-8 text-[var(--text-secondary)] hover:text-[var(--interactive-primary)] hover:bg-[var(--surface-elevated)]"
+                                      title="编辑消息"
+                                    >
+                                      <Edit2 className="w-3.5 h-3.5" />
+                                    </Button>
+                                  )}
+                                  
+                                  {onDeleteMessage && (
+                                    deleteConfirmId === message.id ? (
+                                      <Button
+                                        variant="text"
+                                        size="icon"
+                                        onClick={() => handleConfirmDelete(message.id)}
+                                        className="w-8 h-8 text-rose-600 hover:text-rose-700 hover:bg-rose-50 animate-pulse"
+                                        title="确认删除?"
+                                      >
+                                        <Trash2 className="w-3.5 h-3.5" />
+                                      </Button>
+                                    ) : (
+                                      <Button
+                                        variant="text"
+                                        size="icon"
+                                        onClick={() => handleDeleteClick(message.id)}
+                                        className="w-8 h-8 text-[var(--text-secondary)] hover:text-rose-600 hover:bg-[var(--surface-elevated)]"
+                                        title="删除消息"
+                                      >
+                                        <Trash2 className="w-3.5 h-3.5" />
+                                      </Button>
+                                    )
+                                  )}
+                                </div>
+                              </>
+                            )}
                           </div>
                         ) : (
-                          // AI 消息 - 使用 Markdown 渲染
-                          <div className="bg-[var(--surface-elevated)] border border-[var(--border-subtle)] rounded-2xl px-4 py-3">
-                            {/* Markdown 渲染的消息内容 */}
-                            <MarkdownMessage content={message.content} />
-                          
-                          {/* 消息操作按钮 - 仅在非流式状态显示 */}
-                          {message.content && !message.isStreaming && (
-                            <motion.div 
-                              className="flex items-center gap-1 mt-3 pt-3 border-t border-[var(--border-subtle)]"
-                              initial={{ opacity: 0, y: -10 }}
-                              animate={{ opacity: 1, y: 0 }}
-                              transition={{ duration: 0.3 }}
-                            >
-                              {/* 复制按钮 */}
-                              <Button
-                                variant="text"
-                                size="icon"
-                                onClick={() => handleCopyMessage(message.id, message.content)}
-                                className={cn(
-                                  "w-8 h-8 hover:bg-[var(--surface-elevated)] transition-all",
-                                  copiedMessageId === message.id
-                                    ? "text-[var(--status-success)]"
-                                    : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
-                                )}
-                                title={copiedMessageId === message.id ? "已复制" : "复制"}
-                              >
-                                {copiedMessageId === message.id ? (
-                                  <Check className="w-4 h-4" />
-                                ) : (
-                                  <Copy className="w-4 h-4" />
-                                )}
-                              </Button>
+                          // AI 消息
+                          <div>
+                            {/* 工作流时间线 - 在消息内容之前显示 */}
+                            {message.workflowEvents && message.workflowEvents.length > 0 && (
+                              <WorkflowTimeline events={message.workflowEvents} />
+                            )}
 
-                              {/* 重新生成按钮 */}
-                              <Button
-                                variant="text"
-                                size="icon"
-                                onClick={() => handleRegenerateMessage(index)}
-                                className="w-8 h-8 text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-elevated)]"
-                                title="重新生成"
-                              >
-                                <RefreshCw className="w-4 h-4" />
-                              </Button>
+                            {/* 消息内容盒子 */}
+                            <div className={cn(
+                              "bg-[var(--surface-elevated)] rounded-2xl px-4 py-3 shadow-sm",
+                              message.error && "border-2 border-rose-500/20"
+                            )}>
+                              {/* 如果消息内容为空且正在思考,显示思考动画 */}
+                              {!message.content && isThinking ? (
+                                <AIThinking />
+                              ) : (
+                                // 否则显示 Markdown 渲染的消息内容
+                                <MarkdownMessage content={message.content} />
+                              )}
 
-                              {/* 点赞按钮 */}
-                              <Button
-                                variant="text"
-                                size="icon"
-                                onClick={() => handleLikeMessage(message.id)}
-                                className={cn(
-                                  "w-8 h-8 hover:bg-[var(--surface-elevated)] transition-all",
-                                  likedMessages.has(message.id)
-                                    ? "text-[var(--interactive-primary)]"
-                                    : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
-                                )}
-                                title="有帮助"
-                              >
-                                <ThumbsUp className={cn(
-                                  "w-4 h-4",
-                                  likedMessages.has(message.id) && "fill-current"
-                                )} />
-                              </Button>
+                              {/* 错误重试按钮 */}
+                              {message.error && message.error.canRetry && (
+                                <motion.div
+                                  initial={{ opacity: 0, y: 10 }}
+                                  animate={{ opacity: 1, y: 0 }}
+                                  className="mt-4 pt-4 border-t border-rose-500/10"
+                                >
+                                  <div className="flex items-center gap-3">
+                                    <Button
+                                      variant="secondary"
+                                      size="sm"
+                                      onClick={() => onRetryMessage?.(message.id)}
+                                      className="bg-rose-50 hover:bg-rose-100 text-rose-600 border-rose-200"
+                                    >
+                                      <RefreshCw className="w-3.5 h-3.5 mr-1.5" />
+                                      重试 ({message.error.retryCount + 1}/3)
+                                    </Button>
+                                    <span className="text-xs text-[var(--text-tertiary)]">
+                                      错误类型: {message.error.type}
+                                    </span>
+                                  </div>
+                                </motion.div>
+                              )}
+                            
+                              {/* 消息操作按钮 - 仅在非流式状态显示 */}
+                              {message.content && !message.isStreaming && !message.error && (
+                                <motion.div 
+                                  className="flex items-center gap-1 mt-3 pt-3"
+                                  initial={{ opacity: 0, y: -10 }}
+                                  animate={{ opacity: 1, y: 0 }}
+                                  transition={{ duration: 0.3 }}
+                                  style={{ 
+                                    borderTop: '1px solid var(--border-subtle)',
+                                    opacity: 0.3
+                                  }}
+                                >
+                                  {/* 复制按钮 */}
+                                  <Button
+                                    variant="text"
+                                    size="icon"
+                                    onClick={() => handleCopyMessage(message.id, message.content)}
+                                    className={cn(
+                                      "w-8 h-8 hover:bg-[var(--surface-elevated)] transition-all",
+                                      copiedMessageId === message.id
+                                        ? "text-[var(--status-success)]"
+                                        : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+                                    )}
+                                    title={copiedMessageId === message.id ? "已复制" : "复制"}
+                                  >
+                                    {copiedMessageId === message.id ? (
+                                      <Check className="w-4 h-4" />
+                                    ) : (
+                                      <Copy className="w-4 h-4" />
+                                    )}
+                                  </Button>
 
-                              {/* 点踩按钮 */}
-                              <Button
-                                variant="text"
-                                size="icon"
-                                onClick={() => handleDislikeMessage(message.id)}
-                                className={cn(
-                                  "w-8 h-8 hover:bg-[var(--surface-elevated)] transition-all",
-                                  dislikedMessages.has(message.id)
-                                    ? "text-[var(--status-error)]"
-                                    : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
-                                )}
-                                title="没有帮助"
-                              >
-                                <ThumbsDown className={cn(
-                                  "w-4 h-4",
-                                  dislikedMessages.has(message.id) && "fill-current"
-                                )} />
-                              </Button>
-                            </motion.div>
-                          )}
-                        </div>
-                      )}
-                    </div>
-                  </motion.div>
+                                  {/* 重新生成按钮 */}
+                                  <Button
+                                    variant="text"
+                                    size="icon"
+                                    onClick={() => handleRegenerateMessage(index)}
+                                    className="w-8 h-8 text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-elevated)]"
+                                    title="重新生成"
+                                  >
+                                    <RefreshCw className="w-4 h-4" />
+                                  </Button>
+
+                                  {/* 点赞按钮 */}
+                                  <Button
+                                    variant="text"
+                                    size="icon"
+                                    onClick={() => handleLikeMessage(message.id)}
+                                    className={cn(
+                                      "w-8 h-8 hover:bg-[var(--surface-elevated)] transition-all",
+                                      likedMessages.has(message.id)
+                                        ? "text-[var(--interactive-primary)]"
+                                        : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+                                    )}
+                                    title="有帮助"
+                                  >
+                                    <ThumbsUp className={cn(
+                                      "w-4 h-4",
+                                      likedMessages.has(message.id) && "fill-current"
+                                    )} />
+                                  </Button>
+
+                                  {/* 点踩按钮 */}
+                                  <Button
+                                    variant="text"
+                                    size="icon"
+                                    onClick={() => handleDislikeMessage(message.id)}
+                                    className={cn(
+                                      "w-8 h-8 hover:bg-[var(--surface-elevated)] transition-all",
+                                      dislikedMessages.has(message.id)
+                                        ? "text-[var(--status-error)]"
+                                        : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+                                    )}
+                                    title="没有帮助"
+                                  >
+                                    <ThumbsDown className={cn(
+                                      "w-4 h-4",
+                                      dislikedMessages.has(message.id) && "fill-current"
+                                    )} />
+                                  </Button>
+                                </motion.div>
+                              )}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </motion.div>
                   );
                 })}
-                
-                {/* AI 思考动画 */}
-                <AnimatePresence>
-                  {isThinking && <AIThinking />}
-                </AnimatePresence>
                 
                 {/* 滚动锚点 */}
                 <div ref={messagesEndRef} />
@@ -501,6 +767,99 @@ export const AIChatState: React.FC<AIChatStateProps> = ({
           </div>
         </motion.div>
       </div>
+
+      {/* 快捷键帮助浮层 */}
+      <AnimatePresence>
+        {showShortcutsHelp && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center"
+            onClick={() => setShowShortcutsHelp(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="bg-[var(--surface-elevated)] rounded-2xl shadow-2xl p-6 max-w-md w-full mx-4"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-lg font-semibold text-[var(--text-primary)]">
+                  ⌨️ 键盘快捷键
+                </h3>
+                <Button
+                  variant="text"
+                  size="icon"
+                  onClick={() => setShowShortcutsHelp(false)}
+                  className="w-8 h-8"
+                >
+                  <X className="w-4 h-4" />
+                </Button>
+              </div>
+              
+              <div className="space-y-3">
+                <ShortcutItem 
+                  keys={['Ctrl', 'N']} 
+                  description="新建对话" 
+                />
+                <ShortcutItem 
+                  keys={['Ctrl', '/']} 
+                  description="搜索对话" 
+                />
+                <ShortcutItem 
+                  keys={['Ctrl', 'K']} 
+                  description="打开命令菜单" 
+                />
+                <ShortcutItem 
+                  keys={['Ctrl', '?']} 
+                  description="显示快捷键帮助" 
+                />
+                <ShortcutItem 
+                  keys={['Ctrl', 'Enter']} 
+                  description="保存编辑并重新生成" 
+                />
+                <ShortcutItem 
+                  keys={['Esc']} 
+                  description="取消操作/关闭弹窗" 
+                />
+                <ShortcutItem 
+                  keys={['Enter']} 
+                  description="发送消息" 
+                />
+                <ShortcutItem 
+                  keys={['Shift', 'Enter']} 
+                  description="换行" 
+                />
+              </div>
+
+              <p className="text-xs text-[var(--text-tertiary)] mt-6 text-center">
+                Mac 用户请使用 ⌘ 代替 Ctrl
+              </p>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
+
+// 快捷键显示组件
+const ShortcutItem: React.FC<{ keys: string[]; description: string }> = ({ keys, description }) => (
+  <div className="flex items-center justify-between py-2">
+    <span className="text-sm text-[var(--text-secondary)]">{description}</span>
+    <div className="flex items-center gap-1">
+      {keys.map((key, index) => (
+        <React.Fragment key={index}>
+          <kbd className="px-2 py-1 text-xs font-semibold bg-[var(--surface-base)] border border-[var(--border-subtle)] rounded shadow-sm">
+            {key}
+          </kbd>
+          {index < keys.length - 1 && (
+            <span className="text-[var(--text-tertiary)] text-xs">+</span>
+          )}
+        </React.Fragment>
+      ))}
+    </div>
+  </div>
+);

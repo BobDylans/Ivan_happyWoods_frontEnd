@@ -360,6 +360,157 @@ Based on plan.md structure:
 
 ---
 
+## Phase 9: AI 对话界面优化 (Priority: P1) ✅
+
+**Goal**: 优化 AI 对话界面的用户体验,包括颜色系统、动画效果、工作流可视化等
+
+**Started**: 2025-10-29  
+**Status**: 🎉 已完成
+
+### 骨架屏与加载状态优化
+
+- [x] T181 [AI-UI] 优化骨架屏颜色方案,使用设计系统变量替代硬编码颜色 ✅ 2025-10-29
+- [x] T182 [AI-UI] 修复思考动画位置,改为消息框内部渲染,取消淡出动画 ✅ 2025-10-29
+- [x] T183 [AI-UI] 统一 ThinkingIndicator 样式,使用 `--surface-elevated` 和 `--text-secondary` ✅ 2025-10-29
+- [x] T184 [AI-UI] 简化 MessageSkeleton 组件,去除冗余动画 ✅ 2025-10-29
+
+### 搜索组件颜色统一
+
+- [x] T185 [AI-UI] 更新 message-search.tsx 组件颜色 ✅ 2025-10-29
+- [x] T186 [AI-UI] Dropdown 背景改为 `--surface-elevated` ✅ 2025-10-29
+- [x] T187 [AI-UI] AI 标签使用 `--interactive-primary` 主题色 ✅ 2025-10-29
+- [x] T188 [AI-UI] User 标签使用 `--surface-base` 和 `--text-secondary` ✅ 2025-10-29
+
+### 自动滚动功能
+
+- [x] T189 [AI-UI] 实现消息自动滚动到新消息位置 ✅ 2025-10-29
+- [x] T190 [AI-UI] 使用消息数量检测触发滚动行为 ✅ 2025-10-29
+- [x] T191 [AI-UI] 添加平滑滚动动画效果 ✅ 2025-10-29
+
+### SSE 工作流可视化
+
+- [x] T192 [AI-UI] 创建 WorkflowTimeline 组件 (249行) ✅ 2025-10-29
+- [x] T193 [AI-UI] 实现 Graph 层事件显示 (workflow_started, node_started, node_finished, route_decision, workflow_complete) ✅ 2025-10-29
+- [x] T194 [AI-UI] 实现 Node 层事件显示 (thinking_phase, tool_call_pending, tool_executing, tool_result, llm_streaming) ✅ 2025-10-29
+- [x] T195 [AI-UI] 修改 notion-ai-interface.tsx 收集工作流事件 ✅ 2025-10-29
+- [x] T196 [AI-UI] 修改 ai-chat-state.tsx 集成 WorkflowTimeline 显示 ✅ 2025-10-29
+- [x] T197 [AI-UI] 验证 use-sse-stream.ts Hook 事件处理完整性 ✅ 2025-10-29
+
+### 工作流时间线颜色优化
+
+- [x] T198 [AI-UI] 统一配色方案,使用设计系统变量 ✅ 2025-10-29
+- [x] T199 [AI-UI] 运行中状态使用 `--interactive-primary` (品牌橙) ✅ 2025-10-29
+- [x] T200 [AI-UI] 完成状态使用 `emerald-500` (翡翠绿) ✅ 2025-10-29
+- [x] T201 [AI-UI] 失败状态使用 `rose-500` (玫瑰红) ✅ 2025-10-29
+- [x] T202 [AI-UI] LLM流式响应使用 `violet-500` (紫罗兰) ✅ 2025-10-29
+- [x] T203 [AI-UI] 优化时间线容器样式 (渐变背景、阴影、分隔线) ✅ 2025-10-29
+- [x] T204 [AI-UI] 增加事件卡片内边距和圆角 ✅ 2025-10-29
+
+### 工作流展示简化
+
+- [x] T205 [AI-UI] 简化工作流显示,只保留核心信息 ✅ 2025-10-29
+- [x] T206 [AI-UI] 隐藏节点开始/完成事件 ✅ 2025-10-29
+- [x] T207 [AI-UI] 隐藏路由决策事件 ✅ 2025-10-29
+- [x] T208 [AI-UI] 隐藏思考阶段和 LLM 流式响应事件 ✅ 2025-10-29
+- [x] T209 [AI-UI] 只显示工具执行中和执行结果 ✅ 2025-10-29
+- [x] T210 [AI-UI] 隐藏工具待调用 (pending) 状态 ✅ 2025-10-29
+- [x] T211 [AI-UI] 去除工具参数和详细结果显示 ✅ 2025-10-29
+- [x] T212 [AI-UI] 只在失败时显示简短错误信息 ✅ 2025-10-29
+- [x] T213 [AI-UI] 标题改为"调用工具",只统计工具调用数量 ✅ 2025-10-29
+- [x] T214 [AI-UI] 无工具调用时不显示时间线 ✅ 2025-10-29
+
+**Checkpoint**: AI 对话界面用户体验大幅提升,工作流可视化清晰简洁 ✅
+
+**成果总结**:
+- ✅ 骨架屏颜色与项目风格统一
+- ✅ 思考动画更加连贯自然
+- ✅ 搜索框颜色协调一致
+- ✅ 新消息自动滚动定位
+- ✅ 工作流执行步骤可视化
+- ✅ 工作流颜色方案优雅舒适
+- ✅ 工作流信息精简,突出重点
+
+**涉及文件**:
+- `client/src/components/ui/skeleton.tsx` - 骨架屏优化
+- `client/src/components/ai/message-search.tsx` - 搜索框颜色
+- `client/src/components/ai/workflow-visual.tsx` - 工作流时间线组件
+- `client/src/components/ai/notion-ai-interface.tsx` - 事件收集
+- `client/src/components/ai/ai-chat-state.tsx` - 时间线集成
+- `client/src/hooks/use-sse-stream.ts` - SSE 事件处理
+
+---
+
+## Phase 10: 待规划功能 (Priority: TBD) 📋
+
+**Goal**: 根据用户需求持续完善 AI 对话界面体验
+
+**Status**: 待规划
+
+### 工作流时间线增强
+- [ ] T215 [AI-ENHANCE] 可折叠/展开的工具详情(点击查看完整参数和结果)
+- [ ] T216 [AI-ENHANCE] 工具执行时长显示(每个工具的耗时)
+- [ ] T217 [AI-ENHANCE] 失败工具的重试按钮
+- [ ] T218 [AI-ENHANCE] 工具调用历史记录
+
+### 消息交互增强
+- [x] T219 [AI-ENHANCE] 消息编辑功能(修改已发送的消息) ✅ 2025-10-29
+- [x] T220 [AI-ENHANCE] 消息删除功能 ✅ 2025-10-29
+- [ ] T221 [AI-ENHANCE] 引用回复(引用之前的某条消息继续对话)
+- [ ] T222 [AI-ENHANCE] 消息标记/收藏功能
+- [ ] T223 [AI-ENHANCE] 消息导出(复制对话历史到剪贴板/下载为文件)
+
+**T219-T220 实现详情**:
+- ✅ 编辑消息: 鼠标悬停显示编辑按钮,点击进入编辑模式
+- ✅ 编辑界面: 文本框自动调整高度,橙色边框高亮
+- ✅ 快捷键: Ctrl+Enter 保存, Esc 取消
+- ✅ 自动重新生成: 编辑后删除后续消息,重新请求 AI 回复
+- ✅ 删除确认: 二次确认机制,3秒自动取消
+- ✅ 智能删除: 删除用户消息时连同 AI 回复一起删除
+- ✅ 防误操作: 脉冲红色确认状态,清晰的视觉反馈
+
+### 输入体验优化
+- [ ] T224 [AI-ENHANCE] Markdown 实时预览(在输入框下方显示格式化预览)
+- [ ] T225 [AI-ENHANCE] @ 提及功能(引用上下文或特定消息)
+- [ ] T226 [AI-ENHANCE] 快捷命令(如 /search, /summarize)
+- [ ] T227 [AI-ENHANCE] 语音输入支持
+- [ ] T228 [AI-ENHANCE] 拖拽上传文件/图片
+
+### 对话管理
+- [ ] T229 [AI-ENHANCE] 会话历史列表(显示所有历史对话)
+- [ ] T230 [AI-ENHANCE] 对话分支功能(从某条消息开始新分支)
+- [ ] T231 [AI-ENHANCE] 对话搜索(搜索历史消息)
+- [ ] T232 [AI-ENHANCE] 对话导出/分享(生成分享链接)
+
+### AI 响应增强
+- [ ] T233 [AI-ENHANCE] 流式响应速度控制(快速/标准/慢速阅读模式)
+- [ ] T234 [AI-ENHANCE] 响应暂停/继续按钮
+- [ ] T235 [AI-ENHANCE] 响应质量反馈(详细反馈理由)
+- [ ] T236 [AI-ENHANCE] 多种回答风格切换(简洁/详细/技术性)
+
+### 视觉和动画
+- [ ] T237 [AI-ENHANCE] 打字机音效(可选)
+- [ ] T238 [AI-ENHANCE] 更丰富的加载动画
+- [ ] T239 [AI-ENHANCE] 代码块语法高亮优化
+- [ ] T240 [AI-ENHANCE] 深色模式进一步优化
+- [ ] T241 [AI-ENHANCE] 自定义主题颜色
+
+### 智能功能
+- [ ] T242 [AI-ENHANCE] 自动摘要长对话
+- [ ] T243 [AI-ENHANCE] 相关问题推荐
+- [ ] T244 [AI-ENHANCE] 上下文提示(显示AI正在参考的内容)
+- [ ] T245 [AI-ENHANCE] Token 使用统计显示
+- [ ] T246 [AI-ENHANCE] 预估响应时间
+
+### 无障碍功能
+- [ ] T247 [AI-ENHANCE] 键盘快捷键支持(Ctrl+Enter 发送等)
+- [ ] T248 [AI-ENHANCE] 屏幕阅读器优化
+- [ ] T249 [AI-ENHANCE] 字体大小调整
+- [ ] T250 [AI-ENHANCE] 高对比度模式
+
+**Checkpoint**: 待用户确认优先级后逐步实现
+
+---
+
 ## Dependencies & Execution Order
 
 ### Phase Dependencies
@@ -373,9 +524,12 @@ Phase 2 (Foundational) ← BLOCKS all user stories
     ├─→ Phase 4 (US2 - P1)
     ├─→ Phase 5 (US3 - P2)
     ├─→ Phase 6 (US4 - P2)
-    └─→ Phase 7 (US5 - P3)
+    ├─→ Phase 7 (US5 - P3)
+    └─→ Phase 9 (AI 对话界面优化 - P1) ✅ 已完成
     ↓
 Phase 8 (Polish)
+    ↓
+Phase 10 (待规划功能) 📋
 ```
 
 - **Setup (Phase 1)**: No dependencies - start immediately
@@ -459,7 +613,7 @@ All tasks marked [P] can run simultaneously:
 
 ## Task Statistics
 
-- **Total Tasks**: 180
+- **Total Tasks**: 250 (原 180 + Phase 9: 34 + Phase 10: 36)
 - **Phase 1 (Setup)**: 16 tasks
 - **Phase 2 (Foundational)**: 29 tasks
 - **Phase 3 (US1 - P1)**: 27 tasks 🎯 MVP
@@ -468,8 +622,19 @@ All tasks marked [P] can run simultaneously:
 - **Phase 6 (US4 - P2)**: 25 tasks
 - **Phase 7 (US5 - P3)**: 15 tasks
 - **Phase 8 (Polish)**: 31 tasks
+- **Phase 9 (AI 对话界面优化 - P1)**: 34 tasks ✅ **已完成**
+- **Phase 10 (待规划功能)**: 36 tasks 📋 **待规划**
 
-**Parallelizable Tasks**: 89 tasks marked [P] (49%)
+**Parallelizable Tasks**: 89 tasks marked [P] (原基础部分 49%)
+
+**Phase 9 完成情况**:
+- ✅ 骨架屏优化: 4/4 tasks (100%)
+- ✅ 搜索组件: 4/4 tasks (100%)
+- ✅ 自动滚动: 3/3 tasks (100%)
+- ✅ SSE 工作流: 6/6 tasks (100%)
+- ✅ 颜色优化: 7/7 tasks (100%)
+- ✅ 展示简化: 10/10 tasks (100%)
+- **总计**: 34/34 tasks ✅ **100% 完成**
 
 **Estimated Timeline** (with 2-person team):
 - Phase 1: 1 week
@@ -480,8 +645,10 @@ All tasks marked [P] can run simultaneously:
 - Phase 6: 2 weeks
 - Phase 7: 1 week
 - Phase 8: 1 week
+- **Phase 9: 0.5 weeks** ✅ **已完成 (2025-10-29)**
+- Phase 10: TBD (待用户确认优先级)
 
-**Total**: ~12 weeks for complete implementation
+**Total**: ~12.5 weeks for complete implementation (不含 Phase 10)
 
 **MVP Timeline**: ~5 weeks (Phase 1 + Phase 2 + Phase 3)
 

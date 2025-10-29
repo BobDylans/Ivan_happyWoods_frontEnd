@@ -4,7 +4,6 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { 
   Plus, 
-  Search, 
   Home, 
   MessageSquare, 
   Settings, 
@@ -19,6 +18,7 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button/button';
 import { Logo } from '@/components/icons/logo';
+import { MessageSearch } from '@/components/ai/message-search';
 import { cn } from '@/lib/utils';
 
 interface NotionSidebarProps {
@@ -48,7 +48,6 @@ export const NotionSidebar: React.FC<NotionSidebarProps> = ({
   onNewChat,
   currentChatId
 }) => {
-  const [searchQuery, setSearchQuery] = useState('');
   const [expandedSections, setExpandedSections] = useState<string[]>(['ai-chats', 'pages']);
 
   const toggleSection = (sectionId: string) => {
@@ -147,9 +146,9 @@ export const NotionSidebar: React.FC<NotionSidebarProps> = ({
   };
 
   return (
-    <div className="w-64 h-full bg-[var(--surface-base)] border-r border-[var(--border-subtle)] flex flex-col">
+    <div className="w-64 h-full bg-[var(--surface-base)] flex flex-col shadow-sm">
       {/* 顶部品牌区域 */}
-      <div className="p-4 border-b border-[var(--border-subtle)]">
+      <div className="p-4 pb-3">
         <div className="flex items-center gap-3 mb-4">
           <Logo size="sm" showText={false} />
           <div className="flex-1 min-w-0">
@@ -158,21 +157,18 @@ export const NotionSidebar: React.FC<NotionSidebarProps> = ({
           </div>
         </div>
         
-        {/* 搜索框 */}
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-secondary)]" />
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="搜索..."
-            className="w-full h-8 pl-9 pr-3 text-sm bg-[var(--surface-elevated)] border border-[var(--border-subtle)] rounded-md outline-none focus:border-[var(--interactive-primary)] transition-colors"
-          />
-        </div>
+        {/* 消息搜索组件 */}
+        <MessageSearch
+          placeholder="搜索消息..."
+          onSelect={(result) => {
+            console.log('选中搜索结果:', result);
+            // 这里会自动切换到对应会话
+          }}
+        />
       </div>
 
       {/* 主要内容区域 */}
-      <div className="flex-1 overflow-y-auto py-4">
+      <div className="flex-1 overflow-y-auto py-4 px-1">
         {/* AI 对话记录 */}
         {renderSection('AI 对话', aiChats, 'ai-chats', true)}
         
@@ -191,7 +187,7 @@ export const NotionSidebar: React.FC<NotionSidebarProps> = ({
       </div>
 
       {/* 底部用户区域 */}
-      <div className="p-3 border-t border-[var(--border-subtle)]">
+      <div className="p-3 pt-4">
         <div className="flex items-center gap-3 p-2 rounded-md hover:bg-[var(--surface-elevated)] cursor-pointer transition-colors">
           <div className="w-6 h-6 bg-[var(--interactive-primary)] rounded-full flex items-center justify-center text-white text-xs font-medium">
             U

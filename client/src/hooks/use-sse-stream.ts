@@ -22,6 +22,12 @@ export interface SSEStreamConfig {
     max_tokens?: number;
     temperature?: number;
   };
+  /** 超时时间 (毫秒) */
+  timeout?: number;
+  /** 最大重试次数 */
+  maxRetries?: number;
+  /** 重试延迟 (毫秒) */
+  retryDelay?: number;
 }
 
 /**
@@ -60,8 +66,59 @@ export interface SSECallbacks {
  */
 export function useSSEStream(config: SSEStreamConfig) {
   const [isStreaming, setIsStreaming] = useState(false);
+  const [retryCount, setRetryCount] = useState(0);
   const abortControllerRef = useRef<AbortController | null>(null);
   const fullContentRef = useRef<string>('');
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // 默认配置
+  const timeout = config.timeout || 30000; // 30秒
+  const maxRetries = config.maxRetries || 3;
+  const retryDelay = config.retryDelay || 1000; // 1秒
+
+  /**
+   * 分类错误类型
+   */
+  const classifyError = useCallback((error: Error): string => {
+    const message = error.message.toLowerCase();
+    
+    if (error.name === 'AbortError') {
+      return 'canceled';
+    }
+    if (message.includes('timeout') || message.includes('超时')) {
+      return 'timeout';
+    }
+    if (message.includes('network') || message.includes('fetch') || message.includes('连接')) {
+      return 'network';
+    }
+    if (message.includes('401') || message.includes('403')) {
+      return 'auth';
+    }
+    if (message.includes('404')) {
+      return 'notfound';
+    }
+    if (message.includes('500') || message.includes('502') || message.includes('503')) {
+      return 'server';
+    }
+    return 'unknown';
+  }, []);
+
+  /**
+   * 获取友好的错误消息
+   */
+  const getFriendlyErrorMessage = useCallback((error: Error, errorType: string): string => {
+    const errorMessages: Record<string, string> = {
+      timeout: '⏱️ 请求超时\n\n服务器响应时间过长，请稍后重试。',
+      network: '🌐 网络连接失败\n\n请检查：\n- 网络连接是否正常\n- 后端服务是否启动 (http://localhost:8000)\n- 防火墙是否阻止连接',
+      auth: '🔐 身份验证失败\n\n请检查 API Key 是否正确。',
+      notfound: '❓ 接口不存在\n\n请求的 API 端点不存在，请联系技术支持。',
+      server: '🔧 服务器错误\n\n后端服务遇到问题，请稍后重试或联系技术支持。',
+      canceled: '🛑 请求已取消',
+      unknown: `❌ 未知错误\n\n${error.message}\n\n如果问题持续，请联系技术支持。`
+    };
+    
+    return errorMessages[errorType] || errorMessages.unknown;
+  }, []);
 
   /**
    * 解析 SSE 数据行
@@ -168,16 +225,26 @@ export function useSSEStream(config: SSEStreamConfig) {
   );
 
   /**
-   * 发送消息并处理流式响应
+   * 发送消息并处理流式响应（带重试）
    */
   const sendMessage = useCallback(
-    async (message: string, callbacks: SSECallbacks = {}) => {
+    async (message: string, callbacks: SSECallbacks = {}, currentRetry = 0) => {
       // 重置状态
       fullContentRef.current = '';
       setIsStreaming(true);
+      setRetryCount(currentRetry);
 
       // 创建新的 AbortController
       abortControllerRef.current = new AbortController();
+
+      // 设置超时
+      timeoutRef.current = setTimeout(() => {
+        if (abortControllerRef.current) {
+          abortControllerRef.current.abort();
+          const timeoutError = new Error(`请求超时 (${timeout}ms)`);
+          callbacks.onError?.(timeoutError);
+        }
+      }, timeout);
 
       const requestBody = {
         message,
@@ -194,6 +261,8 @@ export function useSSEStream(config: SSEStreamConfig) {
       console.log('📤 发送 API 请求:', {
         url: requestUrl,
         method: 'POST',
+        retry: currentRetry,
+        maxRetries,
         headers: {
           'Content-Type': 'application/json',
           'X-API-Key': config.apiKey ? '***' : 'none',
@@ -212,23 +281,68 @@ export function useSSEStream(config: SSEStreamConfig) {
           signal: abortControllerRef.current.signal,
         });
 
+        // 清除超时
+        if (timeoutRef.current) {
+          clearTimeout(timeoutRef.current);
+          timeoutRef.current = null;
+        }
+
         if (!response.ok) {
           const errorData = await response.json().catch(() => ({}));
-          throw new Error(errorData.detail || `HTTP ${response.status}: ${response.statusText}`);
+          const error = new Error(errorData.detail || `HTTP ${response.status}: ${response.statusText}`);
+          
+          // 分类错误并获取友好消息
+          const errorType = classifyError(error);
+          const friendlyMessage = getFriendlyErrorMessage(error, errorType);
+          
+          // 服务器错误且未达到最大重试次数，自动重试
+          if ((errorType === 'network' || errorType === 'server' || errorType === 'timeout') && currentRetry < maxRetries) {
+            console.log(`🔄 ${currentRetry + 1}/${maxRetries} 次重试，${retryDelay}ms 后重试...`);
+            await new Promise(resolve => setTimeout(resolve, retryDelay * (currentRetry + 1))); // 指数退避
+            return sendMessage(message, callbacks, currentRetry + 1);
+          }
+          
+          // 包装错误消息
+          const enhancedError = new Error(friendlyMessage);
+          (enhancedError as any).type = errorType;
+          (enhancedError as any).canRetry = currentRetry < maxRetries;
+          (enhancedError as any).retryCount = currentRetry;
+          
+          throw enhancedError;
         }
 
         console.log('✅ API 响应成功，开始处理流式数据');
+
+        // 重置重试计数
+        setRetryCount(0);
 
         // 处理流式响应
         await processStream(response, callbacks);
 
         return fullContentRef.current;
       } catch (error) {
+        // 清除超时
+        if (timeoutRef.current) {
+          clearTimeout(timeoutRef.current);
+          timeoutRef.current = null;
+        }
+
         if (error instanceof Error) {
           if (error.name === 'AbortError') {
             console.log('🛑 请求已取消');
           } else {
             console.error('❌ 请求失败:', error);
+            
+            // 如果错误未经过分类，进行分类
+            if (!(error as any).type) {
+              const errorType = classifyError(error);
+              const friendlyMessage = getFriendlyErrorMessage(error, errorType);
+              (error as any).type = errorType;
+              (error as any).friendlyMessage = friendlyMessage;
+              (error as any).canRetry = currentRetry < maxRetries;
+              (error as any).retryCount = currentRetry;
+            }
+            
             callbacks.onError?.(error);
             throw error;
           }
@@ -237,9 +351,13 @@ export function useSSEStream(config: SSEStreamConfig) {
       } finally {
         setIsStreaming(false);
         abortControllerRef.current = null;
+        if (timeoutRef.current) {
+          clearTimeout(timeoutRef.current);
+          timeoutRef.current = null;
+        }
       }
     },
-    [config, processStream]
+    [config, processStream, timeout, maxRetries, retryDelay, classifyError, getFriendlyErrorMessage]
   );
 
   /**
@@ -257,6 +375,8 @@ export function useSSEStream(config: SSEStreamConfig) {
   return {
     /** 是否正在流式传输 */
     isStreaming,
+    /** 当前重试次数 */
+    retryCount,
     /** 发送消息 */
     sendMessage,
     /** 中止当前请求 */

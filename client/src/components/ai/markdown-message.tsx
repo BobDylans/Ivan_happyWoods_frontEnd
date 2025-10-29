@@ -55,20 +55,30 @@ export const MarkdownMessage: React.FC<MarkdownMessageProps> = ({
           
           // 列表
           ul: ({ children }) => (
-            <ul className="list-disc list-inside mb-4 space-y-2 text-[var(--text-primary)]">
+            <ul className="list-disc list-outside mb-4 space-y-1 text-[var(--text-primary)] pl-6">
               {children}
             </ul>
           ),
           ol: ({ children }) => (
-            <ol className="list-decimal list-inside mb-4 space-y-2 text-[var(--text-primary)]">
+            <ol className="list-decimal list-outside mb-4 space-y-1 text-[var(--text-primary)] pl-6">
               {children}
             </ol>
           ),
-          li: ({ children }) => (
-            <li className="text-sm leading-relaxed ml-2">
-              {children}
-            </li>
-          ),
+          li: ({ children, ...props }) => {
+            // 检查是否包含嵌套列表
+            const hasNestedList = React.Children.toArray(children).some(
+              (child) => React.isValidElement(child) && (child.type === 'ul' || child.type === 'ol')
+            );
+            
+            return (
+              <li className={cn(
+                "text-sm leading-relaxed",
+                hasNestedList ? "mb-2" : "mb-1"
+              )}>
+                {children}
+              </li>
+            );
+          },
           
           // 代码块 - 使用 CodeBlock 组件
           code: ({ node, inline, className, children, ...props }: any) => {

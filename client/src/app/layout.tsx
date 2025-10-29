@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { ThemeProvider } from "@/providers/theme-provider";
+import { ErrorBoundary } from "@/components/error-boundary";
 import "./globals.css";
 
 // 使用系统字体替代 Google Fonts（避免网络问题）
@@ -20,7 +21,9 @@ export default function RootLayout({
     <html lang="zh-CN" suppressHydrationWarning>
       <body className="antialiased font-sans">
         <ThemeProvider>
-          {children}
+          <ErrorBoundary>
+            {children}
+          </ErrorBoundary>
         </ThemeProvider>
       </body>
     </html>
