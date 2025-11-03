@@ -45,126 +45,121 @@ export function clearSessionId(conversationId?: string): void {
   localStorage.removeItem(storageKey);
 }
 
-// ==================== 认证相关类型 ====================
+// ============================================
+// 认证相关接口
+// ============================================
 
-/**
- * 登录请求参数
- */
-export interface LoginRequest {
-  email: string;
+interface LoginRequest {
+  username: string; // 后端使用 username 字段
   password: string;
 }
 
-/**
- * 注册请求参数
- */
-export interface RegisterRequest {
+interface RegisterRequest {
   username: string;
   email: string;
   password: string;
+  full_name?: string; // 可选字段
 }
 
-/**
- * 认证响应
- */
-export interface AuthResponse {
+interface AuthResponse {
   success: boolean;
-  token?: string;
+  access_token?: string;
+  refresh_token?: string;
+  token_type?: string;
+  expires_in?: number;
   user?: {
-    id: string;
+    user_id: string;
     username: string;
     email: string;
+    full_name?: string;
+    is_active: boolean;
+    created_at: string;
   };
   message?: string;
 }
 
-// ==================== 认证相关 API ====================
-
 /**
  * 用户登录
- *
- * TODO: 待后端提供接口后实现
- *
- * @param credentials 登录凭证
- * @returns Promise<AuthResponse>
+ * 使用 OAuth2 Password Flow
  */
 export async function login(credentials: LoginRequest): Promise<AuthResponse> {
-  // TODO: 接入后端登录 API
-  // const response = await fetch(`${API_CONFIG.baseUrl}/api/v1/auth/login`, {
-  //   method: 'POST',
-  //   headers: {
-  //     'Content-Type': 'application/json',
-  //   },
-  //   body: JSON.stringify(credentials),
-  // });
-  //
-  // if (!response.ok) {
-  //   const errorData = await response.json().catch(() => ({}));
-  //   throw new Error(errorData.message || '登录失败');
-  // }
-  //
-  // const data: AuthResponse = await response.json();
-  //
-  // // 保存 token 到 localStorage
-  // if (data.token) {
-  //   localStorage.setItem('auth_token', data.token);
-  //   localStorage.setItem('user_info', JSON.stringify(data.user));
-  // }
-  //
-  // return data;
+  try {
+    // OAuth2 Password Flow 使用 application/x-www-form-urlencoded
+    const formData = new URLSearchParams();
+    formData.append("username", credentials.username);
+    formData.append("password", credentials.password);
 
-  // 临时模拟实现
-  console.log("登录请求:", credentials);
-  return new Promise(resolve => {
-    setTimeout(() => {
-      resolve({
-        success: true,
-        token: "mock_token_" + Date.now(),
-        user: {
-          id: "user_123",
-          username: "测试用户",
-          email: credentials.email,
-        },
-      });
-    }, 1000);
-  });
+    const response = await fetch(`${API_CONFIG.baseUrl}/api/v1/auth/login`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body: formData,
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.detail || "登录失败");
+    }
+
+    // 保存 Token 到 localStorage
+    if (data.access_token) {
+      localStorage.setItem("auth_token", data.access_token);
+      localStorage.setItem("refresh_token", data.refresh_token);
+    }
+
+    return {
+      success: true,
+      access_token: data.access_token,
+      refresh_token: data.refresh_token,
+      token_type: data.token_type,
+      expires_in: data.expires_in,
+    };
+  } catch (error) {
+    console.error("登录错误:", error);
+    return {
+      success: false,
+      message: error instanceof Error ? error.message : "登录失败",
+    };
+  }
 }
 
 /**
  * 用户注册
- *
- * TODO: 待后端提供接口后实现
- *
- * @param userData 注册信息
- * @returns Promise<AuthResponse>
  */
 export async function register(userData: RegisterRequest): Promise<AuthResponse> {
-  // TODO: 接入后端注册 API
-  // const response = await fetch(`${API_CONFIG.baseUrl}/api/v1/auth/register`, {
-  //   method: 'POST',
-  //   headers: {
-  //     'Content-Type': 'application/json',
-  //   },
-  //   body: JSON.stringify(userData),
-  // });
-  //
-  // if (!response.ok) {
-  //   const errorData = await response.json().catch(() => ({}));
-  //   throw new Error(errorData.message || '注册失败');
-  // }
-  //
-  // return await response.json();
+  try {
+    const response = await fetch(`${API_CONFIG.baseUrl}/api/v1/auth/register`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        username: userData.username,
+        email: userData.email,
+        password: userData.password,
+        full_name: userData.full_name || null,
+      }),
+    });
 
-  // 临时模拟实现
-  console.log("注册请求:", userData);
-  return new Promise(resolve => {
-    setTimeout(() => {
-      resolve({
-        success: true,
-        message: "注册成功",
-      });
-    }, 1000);
-  });
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.detail || "注册失败");
+    }
+
+    return {
+      success: true,
+      message: data.message || "注册成功",
+    };
+  } catch (error) {
+    console.error("注册错误:", error);
+    return {
+      success: false,
+      message: error instanceof Error ? error.message : "注册失败",
+    };
+  }
 }
 
 /**
@@ -185,15 +180,36 @@ export function logout(): void {
 /**
  * 获取当前登录用户信息
  */
-export function getCurrentUser(): { id: string; username: string; email: string } | null {
+export async function getCurrentUser(): Promise<AuthResponse["user"] | null> {
   if (typeof window === "undefined") return null;
 
-  const userInfo = localStorage.getItem("user_info");
-  if (!userInfo) return null;
-
   try {
-    return JSON.parse(userInfo);
-  } catch {
+    const token = getAuthToken();
+    if (!token) {
+      return null;
+    }
+
+    const response = await fetch(`${API_CONFIG.baseUrl}/api/v1/auth/me`, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      if (response.status === 401) {
+        // Token 过期，清除本地存储
+        logout();
+      }
+      return null;
+    }
+
+    const data = await response.json();
+    // 保存用户信息
+    localStorage.setItem("user_info", JSON.stringify(data));
+    return data;
+  } catch (error) {
+    console.error("获取用户信息错误:", error);
     return null;
   }
 }
@@ -215,6 +231,47 @@ export function getAuthToken(): string | null {
   if (typeof window === "undefined") return null;
 
   return localStorage.getItem("auth_token");
+}
+
+/**
+ * 刷新 Token
+ */
+export async function refreshAuthToken(): Promise<boolean> {
+  if (typeof window === "undefined") return false;
+
+  try {
+    const refreshToken = localStorage.getItem("refresh_token");
+    if (!refreshToken) {
+      return false;
+    }
+
+    const response = await fetch(`${API_CONFIG.baseUrl}/api/v1/auth/refresh`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        refresh_token: refreshToken,
+      }),
+    });
+
+    if (!response.ok) {
+      logout();
+      return false;
+    }
+
+    const data = await response.json();
+
+    // 更新 Token
+    localStorage.setItem("auth_token", data.access_token);
+    localStorage.setItem("refresh_token", data.refresh_token);
+
+    return true;
+  } catch (error) {
+    console.error("刷新 Token 错误:", error);
+    logout();
+    return false;
+  }
 }
 
 // ==================== 原有的消息相关类型和函数 ====================

@@ -71,32 +71,32 @@ export default function LoginPage() {
     };
     let isValid = true;
 
-    // 注册模式需要验证用户名
-    if (mode === "register") {
-      if (!formData.username.trim()) {
-        newErrors.username = "请输入用户名";
-        isValid = false;
-      } else if (formData.username.length < 3) {
-        newErrors.username = "用户名至少3个字符";
-        isValid = false;
-      }
+    // 验证用户名（登录和注册都需要）
+    if (!formData.username.trim()) {
+      newErrors.username = "请输入用户名";
+      isValid = false;
+    } else if (formData.username.length < 3) {
+      newErrors.username = "用户名至少3个字符";
+      isValid = false;
     }
 
-    // 验证邮箱
-    if (!formData.email.trim()) {
-      newErrors.email = "请输入邮箱";
-      isValid = false;
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      newErrors.email = "邮箱格式不正确";
-      isValid = false;
+    // 注册模式需要验证邮箱
+    if (mode === "register") {
+      if (!formData.email.trim()) {
+        newErrors.email = "请输入邮箱";
+        isValid = false;
+      } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+        newErrors.email = "邮箱格式不正确";
+        isValid = false;
+      }
     }
 
     // 验证密码
     if (!formData.password) {
       newErrors.password = "请输入密码";
       isValid = false;
-    } else if (formData.password.length < 6) {
-      newErrors.password = "密码至少6个字符";
+    } else if (formData.password.length < 8) {
+      newErrors.password = "密码至少8个字符";
       isValid = false;
     }
 
@@ -126,37 +126,43 @@ export default function LoginPage() {
     setIsLoading(true);
 
     try {
-      // TODO: 调用后端 API
       if (mode === "login") {
         // 登录 API 调用
-        console.log("登录:", { email: formData.email, password: formData.password });
+        const { login } = await import("@/lib/api-service");
+        const result = await login({
+          username: formData.username,
+          password: formData.password,
+        });
 
-        // 模拟 API 延迟
-        await new Promise(resolve => setTimeout(resolve, 1000));
-
-        // TODO: 保存 token 到 localStorage
-        // localStorage.setItem('auth_token', response.token);
-
-        // 跳转到主页
-        router.push("/notion-ai");
+        if (result.success) {
+          // 登录成功，跳转到 AI 对话页面
+          router.push("/notion-ai");
+        } else {
+          // 显示错误消息
+          alert(result.message || "登录失败");
+        }
       } else {
         // 注册 API 调用
-        console.log("注册:", {
+        const { register } = await import("@/lib/api-service");
+        const result = await register({
           username: formData.username,
           email: formData.email,
           password: formData.password,
         });
 
-        // 模拟 API 延迟
-        await new Promise(resolve => setTimeout(resolve, 1000));
-
-        // 注册成功后自动切换到登录
-        setMode("login");
-        setFormData({ ...formData, password: "", confirmPassword: "" });
+        if (result.success) {
+          // 注册成功，切换到登录模式
+          alert("注册成功！请登录");
+          setMode("login");
+          setFormData({ ...formData, email: "", password: "", confirmPassword: "" });
+        } else {
+          // 显示错误消息
+          alert(result.message || "注册失败");
+        }
       }
     } catch (error) {
       console.error("表单提交错误:", error);
-      // TODO: 显示错误提示
+      alert(error instanceof Error ? error.message : "操作失败，请重试");
     } finally {
       setIsLoading(false);
     }
@@ -203,7 +209,30 @@ export default function LoginPage() {
         {/* 表单卡片 */}
         <div className="bg-[var(--surface-elevated)] rounded-2xl shadow-lg border border-[var(--border-subtle)] p-8">
           <form onSubmit={handleSubmit} className="space-y-5">
-            {/* 用户名（仅注册时显示） */}
+            {/* 用户名（登录和注册都显示） */}
+            <div>
+              <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
+                用户名
+              </label>
+              <div className="relative">
+                <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-[var(--text-secondary)]" />
+                <input
+                  type="text"
+                  value={formData.username}
+                  onChange={e => handleInputChange("username", e.target.value)}
+                  placeholder="请输入用户名"
+                  className={cn(
+                    "w-full h-12 pl-11 pr-4 rounded-lg border bg-[var(--surface-base)] text-[var(--text-primary)] placeholder-[var(--text-secondary)] outline-none transition-all",
+                    errors.username
+                      ? "border-red-500 focus:border-red-500 focus:ring-2 focus:ring-red-500/20"
+                      : "border-[var(--border-subtle)] focus:border-[var(--interactive-primary)] focus:ring-2 focus:ring-[var(--interactive-primary)]/20"
+                  )}
+                />
+              </div>
+              {errors.username && <p className="mt-1 text-sm text-red-500">{errors.username}</p>}
+            </div>
+
+            {/* 邮箱（仅注册时显示） */}
             {mode === "register" && (
               <motion.div
                 initial={{ opacity: 0, height: 0 }}
@@ -212,49 +241,26 @@ export default function LoginPage() {
                 transition={{ duration: 0.3 }}
               >
                 <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
-                  用户名
+                  邮箱
                 </label>
                 <div className="relative">
-                  <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-[var(--text-secondary)]" />
+                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-[var(--text-secondary)]" />
                   <input
-                    type="text"
-                    value={formData.username}
-                    onChange={e => handleInputChange("username", e.target.value)}
-                    placeholder="请输入用户名"
+                    type="email"
+                    value={formData.email}
+                    onChange={e => handleInputChange("email", e.target.value)}
+                    placeholder="your@email.com"
                     className={cn(
                       "w-full h-12 pl-11 pr-4 rounded-lg border bg-[var(--surface-base)] text-[var(--text-primary)] placeholder-[var(--text-secondary)] outline-none transition-all",
-                      errors.username
+                      errors.email
                         ? "border-red-500 focus:border-red-500 focus:ring-2 focus:ring-red-500/20"
                         : "border-[var(--border-subtle)] focus:border-[var(--interactive-primary)] focus:ring-2 focus:ring-[var(--interactive-primary)]/20"
                     )}
                   />
                 </div>
-                {errors.username && <p className="mt-1 text-sm text-red-500">{errors.username}</p>}
+                {errors.email && <p className="mt-1 text-sm text-red-500">{errors.email}</p>}
               </motion.div>
             )}
-
-            {/* 邮箱 */}
-            <div>
-              <label className="block text-sm font-medium text-[var(--text-primary)] mb-2">
-                邮箱
-              </label>
-              <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-[var(--text-secondary)]" />
-                <input
-                  type="email"
-                  value={formData.email}
-                  onChange={e => handleInputChange("email", e.target.value)}
-                  placeholder="your@email.com"
-                  className={cn(
-                    "w-full h-12 pl-11 pr-4 rounded-lg border bg-[var(--surface-base)] text-[var(--text-primary)] placeholder-[var(--text-secondary)] outline-none transition-all",
-                    errors.email
-                      ? "border-red-500 focus:border-red-500 focus:ring-2 focus:ring-red-500/20"
-                      : "border-[var(--border-subtle)] focus:border-[var(--interactive-primary)] focus:ring-2 focus:ring-[var(--interactive-primary)]/20"
-                  )}
-                />
-              </div>
-              {errors.email && <p className="mt-1 text-sm text-red-500">{errors.email}</p>}
-            </div>
 
             {/* 密码 */}
             <div>
