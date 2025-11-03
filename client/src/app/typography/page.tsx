@@ -334,7 +334,9 @@ export default function TypographyPage() {
                   </li>
                   <li className="flex gap-2">
                     <span className="text-[var(--status-error)]">•</span>
-                    <Text variant="body-sm">Don&apos;t set line height below 1.4 for body text</Text>
+                    <Text variant="body-sm">
+                      Don&apos;t set line height below 1.4 for body text
+                    </Text>
                   </li>
                   <li className="flex gap-2">
                     <span className="text-[var(--status-error)]">•</span>

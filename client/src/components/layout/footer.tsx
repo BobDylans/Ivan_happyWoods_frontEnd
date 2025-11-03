@@ -67,7 +67,7 @@ export const Footer: React.FC = () => {
 
             {/* 社交链接 */}
             <div className="flex gap-4">
-              {socialLinks.map((social) => {
+              {socialLinks.map(social => {
                 const Icon = social.icon;
                 return (
                   <a
@@ -89,7 +89,7 @@ export const Footer: React.FC = () => {
           <div>
             <h3 className="text-white font-semibold mb-4">产品</h3>
             <ul className="space-y-3">
-              {navigation.product.map((item) => (
+              {navigation.product.map(item => (
                 <li key={item.name}>
                   <Link
                     href={item.href}
@@ -106,7 +106,7 @@ export const Footer: React.FC = () => {
           <div>
             <h3 className="text-white font-semibold mb-4">资源</h3>
             <ul className="space-y-3">
-              {navigation.resources.map((item) => (
+              {navigation.resources.map(item => (
                 <li key={item.name}>
                   <Link
                     href={item.href}
@@ -123,7 +123,7 @@ export const Footer: React.FC = () => {
           <div>
             <h3 className="text-white font-semibold mb-4">公司</h3>
             <ul className="space-y-3">
-              {navigation.company.map((item) => (
+              {navigation.company.map(item => (
                 <li key={item.name}>
                   <Link
                     href={item.href}
@@ -155,9 +155,7 @@ export const Footer: React.FC = () => {
         {/* 底部版权 */}
         <div className="border-t border-gray-800 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-gray-500">
           <p>© 2025 Ivan HappyWoods. All rights reserved.</p>
-          <p>
-            Built with ❤️ using Next.js & TypeScript
-          </p>
+          <p>Built with ❤️ using Next.js & TypeScript</p>
         </div>
       </div>
     </footer>

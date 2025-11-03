@@ -46,9 +46,7 @@ export const DemoPreviewSection: React.FC = () => {
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
         >
-          <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-            体验智能对话
-          </h2>
+          <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">体验智能对话</h2>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
             看看 AI 如何理解你的需求，给出精准答案
           </p>
@@ -67,9 +65,7 @@ export const DemoPreviewSection: React.FC = () => {
             <div className="w-3 h-3 rounded-full bg-red-400" />
             <div className="w-3 h-3 rounded-full bg-yellow-400" />
             <div className="w-3 h-3 rounded-full bg-green-400" />
-            <span className="ml-4 text-sm text-gray-500 font-medium">
-              AI 对话演示
-            </span>
+            <span className="ml-4 text-sm text-gray-500 font-medium">AI 对话演示</span>
           </div>
 
           {/* 消息列表 */}

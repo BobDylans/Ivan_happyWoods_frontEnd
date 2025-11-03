@@ -57,8 +57,7 @@ const faqs: FAQItem[] = [
   },
   {
     question: "可以编辑或删除已发送的消息吗？",
-    answer:
-      "可以。鼠标悬停在消息上会显示编辑和删除按钮。编辑消息后会重新发送，删除消息不可恢复。",
+    answer: "可以。鼠标悬停在消息上会显示编辑和删除按钮。编辑消息后会重新发送，删除消息不可恢复。",
   },
   {
     question: "支持哪些快捷键？",
@@ -71,8 +70,7 @@ const faqs: FAQItem[] = [
   },
   {
     question: "如何导出对话记录？",
-    answer:
-      '在会话列表中，点击会话右侧的菜单按钮，选择"导出"，可以导出为 Markdown 或 JSON 格式。',
+    answer: '在会话列表中，点击会话右侧的菜单按钮，选择"导出"，可以导出为 Markdown 或 JSON 格式。',
   },
 ];
 
@@ -160,7 +158,9 @@ export default function HelpPage() {
       {/* 常见问题 */}
       <section id="faq" className="py-16 px-6 bg-[var(--surface-elevated)]">
         <div className="max-w-4xl mx-auto">
-          <h2 className="text-3xl font-bold text-[var(--text-primary)] mb-12 text-center">常见问题</h2>
+          <h2 className="text-3xl font-bold text-[var(--text-primary)] mb-12 text-center">
+            常见问题
+          </h2>
 
           <div className="space-y-4">
             {faqs.map((faq, index) => (
@@ -193,9 +193,9 @@ export default function HelpPage() {
                       initial={{ height: 0, opacity: 0 }}
                       animate={{ height: "auto", opacity: 1 }}
                       exit={{ height: 0, opacity: 0 }}
-                      transition={{ 
+                      transition={{
                         duration: 0.4,
-                        ease: [0.43, 0.13, 0.23, 0.96]
+                        ease: [0.43, 0.13, 0.23, 0.96],
                       }}
                       className="overflow-hidden"
                     >
@@ -216,7 +216,9 @@ export default function HelpPage() {
       {/* 快捷键列表 */}
       <section id="shortcuts" className="py-16 px-6">
         <div className="max-w-4xl mx-auto">
-          <h2 className="text-3xl font-bold text-[var(--text-primary)] mb-12 text-center">快捷键列表</h2>
+          <h2 className="text-3xl font-bold text-[var(--text-primary)] mb-12 text-center">
+            快捷键列表
+          </h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {shortcuts.map((shortcut, index) => (
@@ -250,7 +252,9 @@ export default function HelpPage() {
       {/* 功能指南 */}
       <section id="guides" className="py-16 px-6 bg-[var(--surface-elevated)]">
         <div className="max-w-4xl mx-auto">
-          <h2 className="text-3xl font-bold text-[var(--text-primary)] mb-12 text-center">功能指南</h2>
+          <h2 className="text-3xl font-bold text-[var(--text-primary)] mb-12 text-center">
+            功能指南
+          </h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {[

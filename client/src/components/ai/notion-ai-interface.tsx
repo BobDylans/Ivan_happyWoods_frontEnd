@@ -1,10 +1,11 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { AIWelcomeState } from "./ai-welcome-state";
 import { AIChatState } from "./ai-chat-state";
 import { useSSEStream } from "@/hooks/use-sse-stream";
+import { getOrCreateSessionId } from "@/lib/api-service";
 import type { WorkflowEventData } from "./workflow-visual";
 
 // 状态管理接口
@@ -40,6 +41,7 @@ interface Message {
  * - 基于项目现有设计系统的温暖自然风格
  * - 完整的状态管理和动画效果
  * - 完整的 SSE 流式处理和工作流可视化
+ * - 持久化的 session_id，确保会话连续性
  *
  * @example
  * ```tsx
@@ -47,20 +49,25 @@ interface Message {
  * ```
  */
 export const NotionAIInterface: React.FC = () => {
-  const [state, setState] = useState<AIInterfaceState>(() => ({
-    mode: "welcome",
-    messages: [],
-    currentSession: `session_${Date.now()}`,
-    isTransitioning: false,
-    isThinking: false,
-    workflowEvents: new Map(),
-  }));
+  const [state, setState] = useState<AIInterfaceState>(() => {
+    // 初始化时获取或创建持久化的 session_id
+    const persistedSessionId = getOrCreateSessionId("notion_ai");
+
+    return {
+      mode: "welcome",
+      messages: [],
+      currentSession: persistedSessionId,
+      isTransitioning: false,
+      isThinking: false,
+      workflowEvents: new Map(),
+    };
+  });
 
   // 使用完整的 SSE Hook
   const { sendMessage: sendSSEMessage } = useSSEStream({
     apiUrl: process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000",
     apiKey: process.env.NEXT_PUBLIC_API_KEY || "dev-test-key-123",
-    sessionId: state.currentSession,
+    sessionId: state.currentSession, // 使用持久化的 session_id
     userId: "web_user",
     stream: true,
     modelConfig: {
@@ -68,6 +75,11 @@ export const NotionAIInterface: React.FC = () => {
       temperature: 0.7,
     },
   });
+
+  // 在组件挂载时记录 session_id
+  useEffect(() => {
+    console.log("📝 当前会话 Session ID:", state.currentSession);
+  }, [state.currentSession]);
 
   // 处理首次消息提交，触发状态切换
   const handleFirstMessage = async (message: string) => {
@@ -342,14 +354,19 @@ export const NotionAIInterface: React.FC = () => {
 
   // 重置到欢迎状态
   const handleReset = () => {
+    // 重置时创建新的 session_id
+    const newSessionId = getOrCreateSessionId("notion_ai_new");
+
     setState({
       mode: "welcome",
       messages: [],
-      currentSession: `session_${Date.now()}`,
+      currentSession: newSessionId,
       isTransitioning: false,
       isThinking: false,
       workflowEvents: new Map(),
     });
+
+    console.log("🔄 创建新会话:", newSessionId);
   };
 
   // 删除消息

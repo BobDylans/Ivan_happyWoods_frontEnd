@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { HappyWoodsLogoIcon } from "@/components/icons/happy-woods-logo";
-import { Menu, X, Home, MessageSquare, Leaf, ChevronDown, HelpCircle } from "lucide-react";
+import { Menu, X, Home, MessageSquare, Leaf, ChevronDown, HelpCircle, LogIn } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 /**
@@ -126,7 +126,22 @@ export const Navigation: React.FC = () => {
             </div>
 
             {/* 右侧操作区 */}
-            <div className="flex items-center gap-3">
+            <div className="hidden md:flex items-center gap-3 ml-3">
+              {/* 登录按钮 */}
+              <Link href="/login">
+                <motion.button
+                  className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[var(--interactive-primary)] text-white font-medium shadow-sm hover:shadow-md transition-shadow"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <LogIn className="w-4 h-4" />
+                  <span>登录</span>
+                </motion.button>
+              </Link>
+            </div>
+
+            {/* 移动端操作区 */}
+            <div className="flex md:hidden items-center gap-3">
               {/* 移动端菜单按钮 */}
               <button
                 className="md:hidden p-2 rounded-lg hover:bg-[var(--surface-elevated)] transition-colors"
@@ -191,6 +206,17 @@ export const Navigation: React.FC = () => {
                     </Link>
                   );
                 })}
+
+                {/* 移动端登录按钮 */}
+                <Link href="/login" onClick={() => setMobileMenuOpen(false)}>
+                  <motion.div
+                    className="flex items-center gap-3 px-4 py-3 rounded-lg bg-[var(--interactive-primary)] text-white font-medium"
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    <LogIn className="w-5 h-5" />
+                    <span>登录</span>
+                  </motion.div>
+                </Link>
               </div>
             </motion.div>
           </motion.div>

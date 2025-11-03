@@ -2,14 +2,7 @@
 
 import React from "react";
 import { motion } from "framer-motion";
-import {
-  MessageSquare,
-  Wrench,
-  Network,
-  Keyboard,
-  FolderOpen,
-  FileText,
-} from "lucide-react";
+import { MessageSquare, Wrench, Network, Keyboard, FolderOpen, FileText } from "lucide-react";
 import { Card } from "@/components/ui/card/card";
 
 /**

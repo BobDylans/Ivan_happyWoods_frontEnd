@@ -34,16 +34,14 @@ const steps: Step[] = [
     number: "02",
     icon: <Brain className="w-8 h-8" />,
     title: "AI 智能分析",
-    description:
-      "AI 理解你的意图，调用必要的工具，执行思考流程。整个过程实时可视化，透明可见。",
+    description: "AI 理解你的意图，调用必要的工具，执行思考流程。整个过程实时可视化，透明可见。",
     color: "from-purple-500 to-pink-500",
   },
   {
     number: "03",
     icon: <Sparkles className="w-8 h-8" />,
     title: "获得精准答案",
-    description:
-      "获取经过深度思考的答案，支持 Markdown 格式、代码高亮、数学公式等丰富展示。",
+    description: "获取经过深度思考的答案，支持 Markdown 格式、代码高亮、数学公式等丰富展示。",
     color: "from-green-500 to-emerald-500",
   },
 ];
@@ -60,12 +58,8 @@ export const HowItWorksSection: React.FC = () => {
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
         >
-          <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-            如何使用
-          </h2>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            三步开启智能对话，简单高效
-          </p>
+          <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">如何使用</h2>
+          <p className="text-xl text-gray-600 max-w-2xl mx-auto">三步开启智能对话，简单高效</p>
         </motion.div>
 
         {/* 步骤流程 */}

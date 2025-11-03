@@ -156,7 +156,15 @@ export const MarkdownMessage: React.FC<MarkdownMessageProps> = ({ content, class
           },
 
           // 代码块 - 使用 CodeBlock 组件
-          code: ({ inline, className, children }: { inline?: boolean; className?: string; children?: React.ReactNode }) => {
+          code: ({
+            inline,
+            className,
+            children,
+          }: {
+            inline?: boolean;
+            className?: string;
+            children?: React.ReactNode;
+          }) => {
             return (
               <CodeBlock inline={inline} className={className}>
                 {String(children).replace(/\n$/, "")}
