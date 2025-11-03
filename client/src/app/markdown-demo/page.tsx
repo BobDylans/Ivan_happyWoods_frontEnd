@@ -4,6 +4,7 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { HappyWoodsLogo } from "@/components/icons/happy-woods-logo";
 import { MarkdownMessage } from "@/components/ai/markdown-message";
+import { Footer } from "@/components/layout/footer";
 
 export default function MarkdownDemoPage() {
   const demoContent = `# Markdown 渲染增强示例
@@ -203,6 +204,9 @@ print(quick_sort([3, 6, 8, 10, 1, 2, 1]))
           </ul>
         </div>
       </div>
+
+      {/* Footer */}
+      <Footer />
     </div>
   );
 }

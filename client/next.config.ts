@@ -14,6 +14,8 @@ const nextConfig: NextConfig = {
     // 配置图片质量选项
     deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
+    formats: ['image/webp', 'image/avif'], // 支持现代图片格式
+    qualities: [60, 75, 85, 90, 100], // 添加质量配置选项
   },
 };
 

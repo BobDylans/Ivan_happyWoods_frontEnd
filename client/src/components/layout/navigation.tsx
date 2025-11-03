@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { HappyWoodsLogoIcon } from "@/components/icons/happy-woods-logo";
-import { Menu, X, Home, MessageSquare, Leaf, ChevronDown } from "lucide-react";
+import { Menu, X, Home, MessageSquare, Leaf, ChevronDown, HelpCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 /**
@@ -29,6 +29,7 @@ export const Navigation: React.FC = () => {
   const navItems = [
     { href: "/", label: "首页", icon: Home },
     { href: "/notion-ai", label: "AI 对话", icon: MessageSquare },
+    { href: "/help", label: "帮助中心", icon: HelpCircle },
     { href: "/typography", label: "设计系统", icon: Leaf },
   ];
 

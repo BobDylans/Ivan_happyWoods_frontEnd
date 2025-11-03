@@ -23,20 +23,21 @@ export const HeroSection: React.FC = () => {
 
   // 图片数据 - 精心挑选的温暖自然主题图片
   // 主题：森林、阳光、温暖色调、自然氛围
+  // 优化：使用本地托管的图片，Next.js 自动优化
   const images = [
     {
       // 温暖的森林阳光 - 金色光线穿过树林
-      url: "https://images.pexels.com/photos/1166209/pexels-photo-1166209.jpeg?auto=compress&cs=tinysrgb&w=1920",
+      url: "/images/hero/forest-sunlight.jpg",
       alt: "温暖的森林阳光",
     },
     {
       // 秋日森林小径 - 金黄色的树叶和阳光
-      url: "https://images.pexels.com/photos/1496373/pexels-photo-1496373.jpeg?auto=compress&cs=tinysrgb&w=1920",
+      url: "/images/hero/autumn-path.jpg",
       alt: "秋日森林小径",
     },
     {
       // 日出森林湖泊 - 温暖金色倒影与宁静氛围
-      url: "https://images.pexels.com/photos/1323550/pexels-photo-1323550.jpeg?auto=compress&cs=tinysrgb&w=1920",
+      url: "/images/hero/sunrise-lake.jpg",
       alt: "日出森林湖泊",
     },
   ];
@@ -59,17 +60,20 @@ export const HeroSection: React.FC = () => {
     <section className="relative h-screen w-full overflow-hidden">
       {/* 背景轮播图 */}
       <div className="absolute inset-0">
-        <AnimatePresence mode="wait">
+        <AnimatePresence initial={false}>
           {images.map(
             (image, index) =>
               index === currentSlide && (
                 <motion.div
                   key={index}
                   className="absolute inset-0"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 1.5, ease: "easeInOut" }}
+                  initial={{ x: "100%" }}
+                  animate={{ x: 0 }}
+                  exit={{ x: "-100%" }}
+                  transition={{
+                    duration: 1.0,
+                    ease: [0.43, 0.13, 0.23, 0.96],
+                  }}
                 >
                   {/* 使用 Next.js Image 组件优化加载 */}
                   <div className="relative w-full h-full">
@@ -77,10 +81,9 @@ export const HeroSection: React.FC = () => {
                       src={image.url}
                       alt={image.alt}
                       fill
-                      priority={index === 0} // 第一张图片优先加载
-                      loading={index === 0 ? "eager" : "lazy"} // 其他图片懒加载
+                      priority={true} // 所有图片都优先加载，确保无缝切换
                       className="object-cover"
-                      quality={75} // 降低质量以提高加载速度（75 是最佳平衡点）
+                      quality={85} // 本地图片可以提高质量
                       sizes="100vw"
                       placeholder="blur"
                       blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCwABmgAAAA/9k="

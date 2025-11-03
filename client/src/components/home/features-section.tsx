@@ -2,7 +2,14 @@
 
 import React from "react";
 import { motion } from "framer-motion";
-import { MessageSquare, Sparkles, Zap, Shield } from "lucide-react";
+import {
+  MessageSquare,
+  Wrench,
+  Network,
+  Keyboard,
+  FolderOpen,
+  FileText,
+} from "lucide-react";
 import { Card } from "@/components/ui/card/card";
 
 /**
@@ -15,30 +22,44 @@ export const FeaturesSection: React.FC = () => {
     {
       icon: MessageSquare,
       title: "智能对话",
-      description: "基于最新 AI 技术，提供自然流畅的对话体验，理解上下文，给出精准回复。",
-      color: "text-[var(--interactive-primary)]",
-      bgColor: "bg-[var(--interactive-primary)]/10",
-    },
-    {
-      icon: Sparkles,
-      title: "流式响应",
-      description: "实时流式输出，所见即所得。支持 Markdown 渲染和代码高亮，阅读体验更佳。",
-      color: "text-amber-600",
-      bgColor: "bg-amber-600/10",
-    },
-    {
-      icon: Zap,
-      title: "快速高效",
-      description: "毫秒级响应速度，60fps 流畅动画。无论是简单问答还是复杂任务，都能快速完成。",
+      description: "基于最新 AI 模型，提供自然流畅的对话体验，理解上下文，给出精准回答。",
       color: "text-blue-600",
       bgColor: "bg-blue-600/10",
     },
     {
-      icon: Shield,
-      title: "安全可靠",
-      description: "企业级安全保障，数据加密传输。支持会话管理，历史对话随时查看。",
+      icon: Wrench,
+      title: "工具调用",
+      description: "支持实时工具调用可视化，清晰展示 AI 的思考过程和执行步骤。",
+      color: "text-purple-600",
+      bgColor: "bg-purple-600/10",
+    },
+    {
+      icon: Network,
+      title: "可视化流程",
+      description: "工作流节点可视化，实时追踪 AI 思考路径，让 AI 的决策过程透明可见。",
       color: "text-green-600",
       bgColor: "bg-green-600/10",
+    },
+    {
+      icon: Keyboard,
+      title: "快捷键支持",
+      description: "丰富的键盘快捷键，提升操作效率。支持快速发送、编辑、搜索等常用操作。",
+      color: "text-orange-600",
+      bgColor: "bg-orange-600/10",
+    },
+    {
+      icon: FolderOpen,
+      title: "会话管理",
+      description: "智能会话分组、搜索、导出功能，轻松管理历史对话，随时找到需要的内容。",
+      color: "text-indigo-600",
+      bgColor: "bg-indigo-600/10",
+    },
+    {
+      icon: FileText,
+      title: "Markdown 渲染",
+      description: "增强版 Markdown 渲染，支持代码高亮、表格、数学公式、可折叠引用等丰富格式。",
+      color: "text-teal-600",
+      bgColor: "bg-teal-600/10",
     },
   ];
 
@@ -90,7 +111,7 @@ export const FeaturesSection: React.FC = () => {
 
         {/* 特性卡片网格 */}
         <motion.div
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
           variants={containerVariants}
           initial="hidden"
           whileInView="visible"
@@ -101,7 +122,7 @@ export const FeaturesSection: React.FC = () => {
             return (
               <motion.div key={index} variants={itemVariants}>
                 <Card
-                  variant="hover"
+                  variant="elevated"
                   className="h-full p-6 transition-all duration-300 hover:shadow-xl hover:-translate-y-2"
                 >
                   {/* 图标 */}

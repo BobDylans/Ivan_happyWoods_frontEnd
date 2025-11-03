@@ -4,6 +4,7 @@ import { Text } from "@/components/ui/text/text";
 import { Caption } from "@/components/ui/text/caption";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card/card";
 import { HappyWoodsLogo } from "@/components/icons/happy-woods-logo";
+import { Footer } from "@/components/layout/footer";
 import { Type, AlignLeft } from "lucide-react";
 
 export default function TypographyPage() {
@@ -401,11 +402,7 @@ export default function TypographyPage() {
         </div>
 
         {/* Footer */}
-        <div className="max-w-5xl mx-auto text-center pt-12 border-t border-[var(--border-subtle)]">
-          <Text variant="body-sm">
-            Typography system designed for readability, hierarchy, and accessibility
-          </Text>
-        </div>
+        <Footer />
       </div>
     </main>
   );
