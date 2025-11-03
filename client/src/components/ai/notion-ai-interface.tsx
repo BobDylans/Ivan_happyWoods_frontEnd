@@ -4,8 +4,9 @@ import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { AIWelcomeState } from "./ai-welcome-state";
 import { AIChatState } from "./ai-chat-state";
+import { SessionHistory } from "./session-history";
 import { useSSEStream } from "@/hooks/use-sse-stream";
-import { getOrCreateSessionId } from "@/lib/api-service";
+import { getOrCreateSessionId, getSessionDetail, isAuthenticated } from "@/lib/api-service";
 import type { WorkflowEventData } from "./workflow-visual";
 
 // 状态管理接口
@@ -16,6 +17,7 @@ interface AIInterfaceState {
   isTransitioning: boolean;
   isThinking: boolean;
   workflowEvents: Map<string, WorkflowEventData[]>; // 每条消息对应的工作流事件
+  showHistory: boolean; // 是否显示会话历史
 }
 
 interface Message {
@@ -52,6 +54,8 @@ export const NotionAIInterface: React.FC = () => {
   const [state, setState] = useState<AIInterfaceState>(() => {
     // 初始化时获取或创建持久化的 session_id
     const persistedSessionId = getOrCreateSessionId("notion_ai");
+    // 检查是否已登录
+    const loggedIn = typeof window !== "undefined" && !!localStorage.getItem("auth_token");
 
     return {
       mode: "welcome",
@@ -60,6 +64,7 @@ export const NotionAIInterface: React.FC = () => {
       isTransitioning: false,
       isThinking: false,
       workflowEvents: new Map(),
+      showHistory: loggedIn, // 只有登录后才显示历史
     };
   });
 
@@ -356,6 +361,7 @@ export const NotionAIInterface: React.FC = () => {
   const handleReset = () => {
     // 重置时创建新的 session_id
     const newSessionId = getOrCreateSessionId("notion_ai_new");
+    const loggedIn = typeof window !== "undefined" && !!localStorage.getItem("auth_token");
 
     setState({
       mode: "welcome",
@@ -364,6 +370,7 @@ export const NotionAIInterface: React.FC = () => {
       isTransitioning: false,
       isThinking: false,
       workflowEvents: new Map(),
+      showHistory: loggedIn,
     });
 
     console.log("🔄 创建新会话:", newSessionId);

@@ -355,13 +355,22 @@ export async function sendStreamMessage(
   // 使用持久化的 session_id
   const finalSessionId = sessionId || getOrCreateSessionId();
 
+  // 优先使用 JWT Token，如果没有则使用 API Key
+  const token = getAuthToken();
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+  };
+
+  if (token) {
+    headers["Authorization"] = `Bearer ${token}`;
+  } else {
+    headers["X-API-Key"] = API_CONFIG.apiKey;
+  }
+
   try {
     const response = await fetch(`${API_CONFIG.baseUrl}/api/v1/chat/?t=${Date.now()}`, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "X-API-Key": API_CONFIG.apiKey,
-      },
+      headers,
       body: JSON.stringify({
         message: message,
         session_id: finalSessionId,
@@ -374,6 +383,14 @@ export async function sendStreamMessage(
     });
 
     if (!response.ok) {
+      if (response.status === 401 && token) {
+        // Token 过期，尝试刷新
+        const refreshed = await refreshAuthToken();
+        if (refreshed) {
+          // 重试请求
+          return sendStreamMessage(message, sessionId, onChunk, onComplete, onError);
+        }
+      }
       const errorData = await response.json().catch(() => ({}));
       throw new Error(errorData.detail || `HTTP ${response.status}`);
     }
@@ -483,5 +500,145 @@ export async function healthCheck(): Promise<boolean> {
     return response.ok;
   } catch {
     return false;
+  }
+}
+
+// ============================================
+// 会话管理接口
+// ============================================
+
+/**
+ * 会话列表响应类型
+ */
+export interface SessionListResponse {
+  total: number;
+  page: number;
+  page_size: number;
+  has_more: boolean;
+  sessions: SessionItem[];
+}
+
+/**
+ * 会话项
+ */
+export interface SessionItem {
+  session_id: string;
+  user_id: string;
+  status: string;
+  message_count: number;
+  created_at: string;
+  last_activity: string;
+}
+
+/**
+ * 会话详情响应类型
+ */
+export interface SessionDetailResponse {
+  session_id: string;
+  user_id: string;
+  status: string;
+  total_messages: number;
+  created_at: string;
+  last_activity: string;
+  messages: SessionMessage[];
+}
+
+/**
+ * 会话消息
+ */
+export interface SessionMessage {
+  message_id: string;
+  role: "user" | "assistant" | "system";
+  content: string;
+  created_at: string;
+  metadata?: Record<string, unknown>;
+}
+
+/**
+ * 获取用户的会话列表
+ * 需要 JWT Token 认证
+ */
+export async function getUserSessions(
+  page: number = 1,
+  pageSize: number = 10
+): Promise<SessionListResponse> {
+  const token = getAuthToken();
+  if (!token) {
+    throw new Error("未登录，请先登录");
+  }
+
+  try {
+    const response = await fetch(
+      `${API_CONFIG.baseUrl}/api/v1/conversation/sessions/?page=${page}&page_size=${pageSize}`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    if (!response.ok) {
+      if (response.status === 401) {
+        // Token 过期，尝试刷新
+        const refreshed = await refreshAuthToken();
+        if (refreshed) {
+          // 重试请求
+          return getUserSessions(page, pageSize);
+        }
+        throw new Error("认证失败，请重新登录");
+      }
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.detail || `HTTP ${response.status}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("获取会话列表错误:", error);
+    throw error;
+  }
+}
+
+/**
+ * 获取特定会话的详情
+ * 需要 JWT Token 认证
+ */
+export async function getSessionDetail(sessionId: string): Promise<SessionDetailResponse> {
+  const token = getAuthToken();
+  if (!token) {
+    throw new Error("未登录，请先登录");
+  }
+
+  try {
+    const response = await fetch(
+      `${API_CONFIG.baseUrl}/api/v1/conversation/sessions/${sessionId}`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    if (!response.ok) {
+      if (response.status === 401) {
+        // Token 过期，尝试刷新
+        const refreshed = await refreshAuthToken();
+        if (refreshed) {
+          // 重试请求
+          return getSessionDetail(sessionId);
+        }
+        throw new Error("认证失败，请重新登录");
+      }
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.detail || `HTTP ${response.status}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("获取会话详情错误:", error);
+    throw error;
   }
 }

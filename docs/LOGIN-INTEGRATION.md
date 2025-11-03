@@ -2,11 +2,34 @@
 
 ## 📋 概述
 
-已完成登录页面的前端实现，包含登录和注册功能。当前使用模拟数据，待后端提供接口后可快速集成。
+已完成登录页面的前端实现并集成后端真实 API，包含登录和注册功能。
+
+## ✅ 最新更新 (2025-11-03)
+
+### 已集成真实后端 API
+
+根据 `auth_demo.html` 中的接口实现，已完成以下集成：
+
+1. **登录接口** - ✅ 已集成
+   - 使用 OAuth2 Password Flow
+   - Content-Type: `application/x-www-form-urlencoded`
+   - 使用 `username` 字段（而非 email）
+
+2. **注册接口** - ✅ 已集成
+   - Content-Type: `application/json`
+   - 支持 `username`, `email`, `password`, `full_name`
+
+3. **用户信息接口** - ✅ 已集成
+   - JWT Bearer Token 认证
+   - 返回完整用户信息
+
+4. **Token 刷新** - ✅ 已集成
+   - 自动刷新过期 Token
+   - 保存新的 access_token 和 refresh_token
 
 ---
 
-## 🎨 页面特性
+## 📁 文件结构
 
 ### 设计风格
 - ✅ 与项目其他页面保持一致的温暖自然风格
