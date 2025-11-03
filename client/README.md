@@ -49,5 +49,4 @@ Please follow the 4px baseline grid and maintain WCAG AAA standards.
 
 ---
 
-🌿✨ *Making design warmer, more natural, and more intelligent* ✨🌿
-
+🌿✨ _Making design warmer, more natural, and more intelligent_ ✨🌿

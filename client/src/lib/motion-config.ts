@@ -1,7 +1,7 @@
 /**
  * Motion Configuration Library
  * Comprehensive animation presets for Ivan_HappyWoods Design System
- * 
+ *
  * Learned from Suna/Kortix - expanded from 4 to 20+ animation variants
  * All animations respect `prefers-reduced-motion` for accessibility
  */
@@ -28,10 +28,10 @@ export const prefersReducedMotion = (): boolean => {
  * Animation durations (matches CSS design tokens)
  */
 export const duration = {
-  fast: 0.15,      // 150ms - quick interactions
-  normal: 0.2,     // 200ms - standard transitions
-  slow: 0.25,      // 250ms - smooth transitions
-  verySlow: 0.4,   // 400ms - page transitions
+  fast: 0.15, // 150ms - quick interactions
+  normal: 0.2, // 200ms - standard transitions
+  slow: 0.25, // 250ms - smooth transitions
+  verySlow: 0.4, // 400ms - page transitions
 } as const;
 
 /**
@@ -43,24 +43,24 @@ export const easing = {
   easeIn: [0.4, 0, 1, 1],
   easeOut: [0, 0, 0.2, 1],
   easeInOut: [0.4, 0, 0.2, 1],
-  
+
   // Custom easings
   smooth: [0.4, 0.0, 0.2, 1],
   bounce: [0.68, -0.55, 0.265, 1.55],
-  
+
   // Spring presets
   spring: {
     type: "spring",
     stiffness: 400,
     damping: 30,
   } as Transition,
-  
+
   springGentle: {
     type: "spring",
     stiffness: 200,
     damping: 20,
   } as Transition,
-  
+
   springBouncy: {
     type: "spring",
     stiffness: 500,
@@ -77,28 +77,28 @@ export const easing = {
  */
 export const fadeIn: Variants = {
   initial: { opacity: 0 },
-  animate: { 
+  animate: {
     opacity: 1,
     transition: {
       duration: duration.normal,
       ease: easing.easeOut,
-    }
+    },
   },
-  exit: { 
+  exit: {
     opacity: 0,
     transition: {
       duration: duration.fast,
-    }
+    },
   },
 };
 
 export const fadeOut: Variants = {
   initial: { opacity: 1 },
-  animate: { 
+  animate: {
     opacity: 0,
     transition: {
       duration: duration.normal,
-    }
+    },
   },
 };
 
@@ -106,46 +106,46 @@ export const fadeOut: Variants = {
  * Slide Up/Down - Vertical slide with fade
  */
 export const slideUp: Variants = {
-  initial: { 
-    y: 20, 
-    opacity: 0 
+  initial: {
+    y: 20,
+    opacity: 0,
   },
-  animate: { 
-    y: 0, 
+  animate: {
+    y: 0,
     opacity: 1,
     transition: {
       duration: duration.normal,
       ease: easing.easeOut,
-    }
+    },
   },
-  exit: { 
-    y: -20, 
+  exit: {
+    y: -20,
     opacity: 0,
     transition: {
       duration: duration.fast,
-    }
+    },
   },
 };
 
 export const slideDown: Variants = {
-  initial: { 
-    y: -20, 
-    opacity: 0 
+  initial: {
+    y: -20,
+    opacity: 0,
   },
-  animate: { 
-    y: 0, 
+  animate: {
+    y: 0,
     opacity: 1,
     transition: {
       duration: duration.normal,
       ease: easing.easeOut,
-    }
+    },
   },
-  exit: { 
-    y: 20, 
+  exit: {
+    y: 20,
     opacity: 0,
     transition: {
       duration: duration.fast,
-    }
+    },
   },
 };
 
@@ -153,38 +153,38 @@ export const slideDown: Variants = {
  * Scale In/Out - Zoom effect with 3D rotation
  */
 export const scaleIn: Variants = {
-  initial: { 
-    scale: 0.9, 
+  initial: {
+    scale: 0.9,
     opacity: 0,
     rotateX: -30,
   },
-  animate: { 
-    scale: 1, 
+  animate: {
+    scale: 1,
     opacity: 1,
     rotateX: 0,
     transition: {
       duration: duration.normal,
       ease: easing.easeOut,
-    }
+    },
   },
-  exit: { 
-    scale: 0.95, 
+  exit: {
+    scale: 0.95,
     opacity: 0,
     rotateX: -10,
     transition: {
       duration: duration.fast,
-    }
+    },
   },
 };
 
 export const scaleOut: Variants = {
   initial: { scale: 1, opacity: 1 },
-  animate: { 
-    scale: 0.9, 
+  animate: {
+    scale: 0.9,
     opacity: 0,
     transition: {
       duration: duration.fast,
-    }
+    },
   },
 };
 
@@ -196,47 +196,47 @@ export const scaleOut: Variants = {
  * Enter from Left/Right - Horizontal slide
  */
 export const enterFromLeft: Variants = {
-  initial: { 
-    x: -200, 
-    opacity: 0 
+  initial: {
+    x: -200,
+    opacity: 0,
   },
-  animate: { 
-    x: 0, 
+  animate: {
+    x: 0,
     opacity: 1,
     transition: {
       duration: duration.normal,
       ease: easing.easeOut,
-    }
+    },
   },
   exit: {
     x: -200,
     opacity: 0,
     transition: {
       duration: duration.fast,
-    }
-  }
+    },
+  },
 };
 
 export const enterFromRight: Variants = {
-  initial: { 
-    x: 200, 
-    opacity: 0 
+  initial: {
+    x: 200,
+    opacity: 0,
   },
-  animate: { 
-    x: 0, 
+  animate: {
+    x: 0,
     opacity: 1,
     transition: {
       duration: duration.normal,
       ease: easing.easeOut,
-    }
+    },
   },
   exit: {
     x: 200,
     opacity: 0,
     transition: {
       duration: duration.fast,
-    }
-  }
+    },
+  },
 };
 
 export const exitToLeft: Variants = {
@@ -247,7 +247,7 @@ export const exitToLeft: Variants = {
     transition: {
       duration: duration.normal,
       ease: easing.easeIn,
-    }
+    },
   },
 };
 
@@ -259,7 +259,7 @@ export const exitToRight: Variants = {
     transition: {
       duration: duration.normal,
       ease: easing.easeIn,
-    }
+    },
   },
 };
 
@@ -329,17 +329,17 @@ export const staggerContainer: Variants = {
  * Stagger Item - For children in staggered list
  */
 export const staggerItem: Variants = {
-  initial: { 
-    y: 20, 
-    opacity: 0 
+  initial: {
+    y: 20,
+    opacity: 0,
   },
-  animate: { 
-    y: 0, 
+  animate: {
+    y: 0,
     opacity: 1,
     transition: {
       duration: duration.normal,
       ease: easing.easeOut,
-    }
+    },
   },
 };
 
@@ -351,24 +351,24 @@ export const staggerItem: Variants = {
  * Page Transition - For route changes
  */
 export const pageTransition: Variants = {
-  initial: { 
+  initial: {
     opacity: 0,
     y: 20,
   },
-  animate: { 
+  animate: {
     opacity: 1,
     y: 0,
     transition: {
       duration: duration.verySlow,
       ease: easing.easeOut,
-    }
+    },
   },
-  exit: { 
+  exit: {
     opacity: 0,
     y: -20,
     transition: {
       duration: duration.normal,
-    }
+    },
   },
 };
 
@@ -382,14 +382,14 @@ export const slidePage: Variants = {
     transition: {
       duration: duration.verySlow,
       ease: easing.easeInOut,
-    }
+    },
   },
   exit: {
     x: "-100%",
     transition: {
       duration: duration.verySlow,
       ease: easing.easeInOut,
-    }
+    },
   },
 };
 
@@ -461,10 +461,7 @@ export const getResponsiveVariants = (variants: Variants): Variants => {
  * Create motion variant with fallback
  * @deprecated Use getResponsiveVariants instead
  */
-export const createMotionVariant = (
-  animatedVariant: any,
-  staticVariant: any = {}
-) => {
+export const createMotionVariant = (animatedVariant: any, staticVariant: any = {}) => {
   return prefersReducedMotion() ? staticVariant : animatedVariant;
 };
 
@@ -732,13 +729,13 @@ export const getNotionVariants = (variants: Variants): Variants => {
   if (prefersReducedMotion()) {
     return {
       initial: { opacity: 0 },
-      animate: { 
-        opacity: 1, 
-        transition: { duration: 0.15 } 
+      animate: {
+        opacity: 1,
+        transition: { duration: 0.15 },
       },
-      exit: { 
-        opacity: 0, 
-        transition: { duration: 0.1 } 
+      exit: {
+        opacity: 0,
+        transition: { duration: 0.1 },
       },
     };
   }

@@ -1,10 +1,10 @@
 "use client";
 
-import React from 'react';
-import { motion } from 'framer-motion';
-import { Wrench, Loader2, CheckCircle2, XCircle, Clock } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import type { ToolStatus } from '@/types/workflow';
+import React from "react";
+import { motion } from "framer-motion";
+import { Wrench, Loader2, CheckCircle2, XCircle, Clock } from "lucide-react";
+import { cn } from "@/lib/utils";
+import type { ToolStatus } from "@/types/workflow";
 
 export interface ToolCardProps {
   /** 工具名称 */
@@ -26,9 +26,9 @@ export interface ToolCardProps {
 
 /**
  * 工具执行卡片组件
- * 
+ *
  * 显示工具调用的执行状态和结果
- * 
+ *
  * @example
  * ```tsx
  * <ToolCard
@@ -48,54 +48,54 @@ export const ToolCard: React.FC<ToolCardProps> = ({
 }) => {
   const getStatusIcon = () => {
     switch (status) {
-      case 'pending':
+      case "pending":
         return <Clock className="w-4 h-4 text-gray-500" />;
-      case 'executing':
+      case "executing":
         return (
           <motion.div
             animate={{ rotate: 360 }}
-            transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+            transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
           >
             <Loader2 className="w-4 h-4 text-amber-500" />
           </motion.div>
         );
-      case 'success':
+      case "success":
         return <CheckCircle2 className="w-4 h-4 text-green-500" />;
-      case 'failed':
+      case "failed":
         return <XCircle className="w-4 h-4 text-red-500" />;
     }
   };
 
   const getStatusText = () => {
     switch (status) {
-      case 'pending':
-        return '等待执行';
-      case 'executing':
-        return '执行中...';
-      case 'success':
-        return '✓ 成功';
-      case 'failed':
-        return '✗ 失败';
+      case "pending":
+        return "等待执行";
+      case "executing":
+        return "执行中...";
+      case "success":
+        return "✓ 成功";
+      case "failed":
+        return "✗ 失败";
     }
   };
 
   const getStatusColor = () => {
     switch (status) {
-      case 'pending':
-        return 'bg-gray-50';
-      case 'executing':
-        return 'bg-amber-50 border-l-4 border-l-amber-500';
-      case 'success':
-        return 'bg-green-50 border-l-4 border-l-green-500';
-      case 'failed':
-        return 'bg-red-50 border-l-4 border-l-red-500';
+      case "pending":
+        return "bg-gray-50";
+      case "executing":
+        return "bg-amber-50 border-l-4 border-l-amber-500";
+      case "success":
+        return "bg-green-50 border-l-4 border-l-green-500";
+      case "failed":
+        return "bg-red-50 border-l-4 border-l-red-500";
     }
   };
 
   // 格式化参数显示
   const formatArgs = (args: Record<string, any>) => {
     const str = JSON.stringify(args, null, 2);
-    return str.length > 100 ? str.substring(0, 100) + '...' : str;
+    return str.length > 100 ? str.substring(0, 100) + "..." : str;
   };
 
   return (
@@ -104,7 +104,7 @@ export const ToolCard: React.FC<ToolCardProps> = ({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
       className={cn(
-        'rounded-lg overflow-hidden transition-all duration-300',
+        "rounded-lg overflow-hidden transition-all duration-300",
         getStatusColor(),
         className
       )}
@@ -120,9 +120,7 @@ export const ToolCard: React.FC<ToolCardProps> = ({
 
         {/* 工具名称 */}
         <div className="flex-1 min-w-0">
-          <div className="text-sm font-semibold text-[var(--text-primary)]">
-            {name}
-          </div>
+          <div className="text-sm font-semibold text-[var(--text-primary)]">{name}</div>
         </div>
 
         {/* 状态 */}
@@ -130,11 +128,11 @@ export const ToolCard: React.FC<ToolCardProps> = ({
           {getStatusIcon()}
           <span
             className={cn(
-              'text-xs font-medium px-2 py-0.5 rounded-full',
-              status === 'pending' && 'bg-gray-200 text-gray-700',
-              status === 'executing' && 'bg-amber-500 text-white animate-pulse',
-              status === 'success' && 'bg-green-500 text-white',
-              status === 'failed' && 'bg-red-500 text-white'
+              "text-xs font-medium px-2 py-0.5 rounded-full",
+              status === "pending" && "bg-gray-200 text-gray-700",
+              status === "executing" && "bg-amber-500 text-white animate-pulse",
+              status === "success" && "bg-green-500 text-white",
+              status === "failed" && "bg-red-500 text-white"
             )}
           >
             {getStatusText()}
@@ -165,10 +163,8 @@ export const ToolCard: React.FC<ToolCardProps> = ({
           </div>
           <div
             className={cn(
-              'text-xs rounded px-2 py-1',
-              result.success
-                ? 'bg-green-100 text-green-800'
-                : 'bg-red-100 text-red-800'
+              "text-xs rounded px-2 py-1",
+              result.success ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
             )}
           >
             {result.summary}
@@ -181,7 +177,7 @@ export const ToolCard: React.FC<ToolCardProps> = ({
 
 /**
  * 工具列表组件
- * 
+ *
  * 显示多个工具的执行状态
  */
 export interface ToolListProps {
@@ -200,7 +196,7 @@ export interface ToolListProps {
 
 export const ToolList: React.FC<ToolListProps> = ({ tools, className }) => {
   return (
-    <div className={cn('space-y-2', className)}>
+    <div className={cn("space-y-2", className)}>
       {tools.map((tool, index) => (
         <ToolCard
           key={`${tool.name}-${index}`}

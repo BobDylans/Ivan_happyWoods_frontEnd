@@ -1,0 +1,27 @@
+# 依赖目录
+node_modules
+.next
+out
+dist
+build
+
+# 缓存和临时文件
+.cache
+*.log
+.DS_Store
+
+# Lock 文件
+package-lock.json
+pnpm-lock.yaml
+yarn.lock
+
+# 构建产物
+*.tsbuildinfo
+
+# 环境变量
+.env
+.env.local
+.env.*.local
+
+# 公共资源（通常不需要格式化）
+public

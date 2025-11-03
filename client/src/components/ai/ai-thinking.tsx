@@ -1,24 +1,24 @@
 "use client";
 
-import React from 'react';
-import { motion } from 'framer-motion';
-import { Sparkles, Loader2 } from 'lucide-react';
+import React from "react";
+import { motion } from "framer-motion";
+import { Sparkles, Loader2 } from "lucide-react";
 
 /**
  * AI 思考动画组件
- * 
+ *
  * 特性：
  * - 简洁的旋转圆圈动画
  * - 流畅的动画过渡
  */
 export const AIThinking: React.FC = () => {
-  const [dots, setDots] = React.useState('');
+  const [dots, setDots] = React.useState("");
 
   React.useEffect(() => {
     const interval = setInterval(() => {
       setDots(prev => {
-        if (prev === '...') return '';
-        return prev + '.';
+        if (prev === "...") return "";
+        return prev + ".";
       });
     }, 400);
 
@@ -38,11 +38,9 @@ export const AIThinking: React.FC = () => {
         <div className="flex items-center gap-3">
           {/* 旋转加载圆圈 */}
           <Loader2 className="w-5 h-5 text-[var(--interactive-primary)] animate-spin" />
-          
+
           {/* 思考文字 - 动态点点 */}
-          <span className="text-sm text-[var(--text-secondary)] min-w-[100px]">
-            Thinking{dots}
-          </span>
+          <span className="text-sm text-[var(--text-secondary)] min-w-[100px]">Thinking{dots}</span>
         </div>
       </div>
     </motion.div>
@@ -56,7 +54,7 @@ export const AIThinkingSimple: React.FC = () => {
   return (
     <div className="flex items-center gap-2 text-[var(--text-secondary)] text-sm">
       <div className="flex gap-1">
-        {[0, 1, 2].map((index) => (
+        {[0, 1, 2].map(index => (
           <motion.div
             key={index}
             className="w-1.5 h-1.5 bg-[var(--interactive-primary)] rounded-full"
@@ -68,7 +66,7 @@ export const AIThinkingSimple: React.FC = () => {
               duration: 1.2,
               repeat: Infinity,
               delay: index * 0.15,
-              ease: "easeInOut"
+              ease: "easeInOut",
             }}
           />
         ))}
@@ -105,18 +103,16 @@ export const AIThinkingSkeleton: React.FC = () => {
                 duration: 1.5,
                 repeat: Infinity,
                 delay: index * 0.1,
-                ease: "easeInOut"
+                ease: "easeInOut",
               }}
             />
           ))}
         </div>
-        
+
         {/* 底部提示 */}
         <div className="flex items-center gap-2 mt-3 pt-2 border-t border-[var(--border-subtle)]">
           <Sparkles className="w-4 h-4 text-[var(--interactive-primary)] animate-pulse" />
-          <span className="text-xs text-[var(--text-secondary)]">
-            AI 正在生成回复...
-          </span>
+          <span className="text-xs text-[var(--text-secondary)]">AI 正在生成回复...</span>
         </div>
       </div>
     </motion.div>

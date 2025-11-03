@@ -1,15 +1,15 @@
 "use client";
 
-import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { AIWelcomeState } from './ai-welcome-state';
-import { AIChatState } from './ai-chat-state';
-import { useSSEStream } from '@/hooks/use-sse-stream';
-import type { WorkflowEventData } from './workflow-visual';
+import React, { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { AIWelcomeState } from "./ai-welcome-state";
+import { AIChatState } from "./ai-chat-state";
+import { useSSEStream } from "@/hooks/use-sse-stream";
+import type { WorkflowEventData } from "./workflow-visual";
 
 // 状态管理接口
 interface AIInterfaceState {
-  mode: 'welcome' | 'chat';
+  mode: "welcome" | "chat";
   messages: Message[];
   currentSession: string;
   isTransitioning: boolean;
@@ -19,7 +19,7 @@ interface AIInterfaceState {
 
 interface Message {
   id: string;
-  role: 'user' | 'assistant';
+  role: "user" | "assistant";
   content: string;
   timestamp: Date;
   isStreaming?: boolean;
@@ -34,34 +34,34 @@ interface Message {
 
 /**
  * HappyWoods AI 智能助手界面
- * 
+ *
  * 特性：
  * - 初始引导状态和聊天状态的平滑过渡
  * - 基于项目现有设计系统的温暖自然风格
  * - 完整的状态管理和动画效果
  * - 完整的 SSE 流式处理和工作流可视化
- * 
+ *
  * @example
  * ```tsx
  * <NotionAIInterface />
  * ```
  */
 export const NotionAIInterface: React.FC = () => {
-  const [state, setState] = useState<AIInterfaceState>({
-    mode: 'welcome',
+  const [state, setState] = useState<AIInterfaceState>(() => ({
+    mode: "welcome",
     messages: [],
     currentSession: `session_${Date.now()}`,
     isTransitioning: false,
     isThinking: false,
     workflowEvents: new Map(),
-  });
+  }));
 
   // 使用完整的 SSE Hook
-  const { sendMessage: sendSSEMessage, isStreaming } = useSSEStream({
-    apiUrl: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000',
-    apiKey: process.env.NEXT_PUBLIC_API_KEY || 'dev-test-key-123',
+  const { sendMessage: sendSSEMessage } = useSSEStream({
+    apiUrl: process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000",
+    apiKey: process.env.NEXT_PUBLIC_API_KEY || "dev-test-key-123",
     sessionId: state.currentSession,
-    userId: 'web_user',
+    userId: "web_user",
     stream: true,
     modelConfig: {
       max_tokens: 8000,
@@ -74,43 +74,43 @@ export const NotionAIInterface: React.FC = () => {
     if (!message.trim()) return;
 
     // 开始过渡动画
-    setState(prev => ({ 
-      ...prev, 
-      isTransitioning: true 
+    setState(prev => ({
+      ...prev,
+      isTransitioning: true,
     }));
 
     // 创建用户消息
     const userMessage: Message = {
       id: `msg-${Date.now()}`,
-      role: 'user',
+      role: "user",
       content: message,
-      timestamp: new Date()
+      timestamp: new Date(),
     };
 
     // 延迟切换到聊天模式，配合退出动画
     setTimeout(async () => {
       setState(prev => ({
         ...prev,
-        mode: 'chat',
+        mode: "chat",
         messages: [userMessage],
         isTransitioning: false,
-        isThinking: true
+        isThinking: true,
       }));
-      
+
       // 切换完成后，调用 API 获取回复
       const aiMessageId = `msg-${Date.now()}-ai`;
       const aiMessage: Message = {
         id: aiMessageId,
-        role: 'assistant',
-        content: '',
+        role: "assistant",
+        content: "",
         timestamp: new Date(),
-        isStreaming: true
+        isStreaming: true,
       };
 
       setState(prev => ({
         ...prev,
         messages: [...prev.messages, aiMessage],
-        isThinking: true
+        isThinking: true,
       }));
 
       try {
@@ -119,19 +119,22 @@ export const NotionAIInterface: React.FC = () => {
 
         // 使用完整的 SSE Hook
         await sendSSEMessage(message, {
-          onDelta: (content) => {
+          onDelta: content => {
             setState(prev => ({
               ...prev,
               messages: prev.messages.map(msg =>
                 msg.id === aiMessageId
-                  ? { ...msg, content: prev.messages.find(m => m.id === aiMessageId)!.content + content }
+                  ? {
+                      ...msg,
+                      content: prev.messages.find(m => m.id === aiMessageId)!.content + content,
+                    }
                   : msg
               ),
-              isThinking: false  // 收到第一个数据块时隐藏思考动画
+              isThinking: false, // 收到第一个数据块时隐藏思考动画
             }));
           },
-          onWorkflowEvent: (event) => {
-            console.log('🔄 工作流事件:', event);
+          onWorkflowEvent: event => {
+            console.log("🔄 工作流事件:", event);
             // 收集工作流事件
             currentWorkflowEvents.push({
               type: event.type as any,
@@ -139,7 +142,7 @@ export const NotionAIInterface: React.FC = () => {
               data: event.data,
               timestamp: Date.now(),
             });
-            
+
             // 实时更新消息的工作流事件
             setState(prev => ({
               ...prev,
@@ -150,76 +153,74 @@ export const NotionAIInterface: React.FC = () => {
               ),
             }));
           },
-          onToolCalls: (tools) => {
-            console.log('🔧 工具调用:', tools.map(t => t.function?.name).join(', '));
+          onToolCalls: tools => {
+            console.log("🔧 工具调用:", tools.map(t => t.function?.name).join(", "));
             // 可以在这里显示工具调用状态
           },
-          onComplete: (fullContent) => {
-            console.log('✅ 消息完成，总字符数:', fullContent.length);
+          onComplete: fullContent => {
+            console.log("✅ 消息完成，总字符数:", fullContent.length);
             setState(prev => ({
               ...prev,
               messages: prev.messages.map(msg =>
-                msg.id === aiMessageId
-                  ? { ...msg, isStreaming: false }
-                  : msg
+                msg.id === aiMessageId ? { ...msg, isStreaming: false } : msg
               ),
-              isThinking: false
+              isThinking: false,
             }));
           },
-          onError: (error) => {
-            console.error('❌ API 错误:', error);
+          onError: error => {
+            console.error("❌ API 错误:", error);
             setState(prev => ({
               ...prev,
               messages: prev.messages.map(msg =>
                 msg.id === aiMessageId
-                  ? { 
-                      ...msg, 
+                  ? {
+                      ...msg,
                       content: `抱歉，发生了错误：${error.message}\n\n请检查后端服务是否启动（http://localhost:8000）。`,
-                      isStreaming: false 
+                      isStreaming: false,
                     }
                   : msg
               ),
-              isThinking: false
+              isThinking: false,
             }));
-          }
+          },
         });
       } catch (error) {
-        console.error('发送消息失败:', error);
+        console.error("发送消息失败:", error);
       }
     }, 600);
   };
 
-    // 处理后续消息 - 使用完整的 SSE Hook
+  // 处理后续消息 - 使用完整的 SSE Hook
   const handleMessage = async (message: string) => {
     if (!message.trim()) return;
 
     const userMessage: Message = {
       id: `msg-${Date.now()}`,
-      role: 'user',
+      role: "user",
       content: message,
-      timestamp: new Date()
+      timestamp: new Date(),
     };
 
     setState(prev => ({
       ...prev,
       messages: [...prev.messages, userMessage],
-      isThinking: true
+      isThinking: true,
     }));
 
     // 创建 AI 消息占位符
     const aiMessageId = `msg-${Date.now()}-ai`;
     const aiMessage: Message = {
       id: aiMessageId,
-      role: 'assistant',
-      content: '',
+      role: "assistant",
+      content: "",
       timestamp: new Date(),
-      isStreaming: true
+      isStreaming: true,
     };
 
     setState(prev => ({
       ...prev,
       messages: [...prev.messages, aiMessage],
-      isThinking: true
+      isThinking: true,
     }));
 
     try {
@@ -228,28 +229,33 @@ export const NotionAIInterface: React.FC = () => {
 
       // 使用完整的 SSE Hook
       await sendSSEMessage(message, {
-        onDelta: (content) => {
+        onDelta: content => {
           setState(prev => ({
             ...prev,
             messages: prev.messages.map(msg =>
               msg.id === aiMessageId
-                ? { ...msg, content: prev.messages.find(m => m.id === aiMessageId)!.content + content }
+                ? {
+                    ...msg,
+                    content: prev.messages.find(m => m.id === aiMessageId)!.content + content,
+                  }
                 : msg
             ),
-            isThinking: false  // 收到数据时隐藏思考动画
+            isThinking: false, // 收到数据时隐藏思考动画
           }));
         },
-        onWorkflowEvent: (event) => {
-          console.log('🔄 工作流事件:', event);
-          
+        onWorkflowEvent: event => {
+          console.log("🔄 工作流事件:", event);
+
           // 为工具调用事件生成唯一键
           let eventKey: string;
-          if (event.level === 'node' && 
-              (event.type === 'tool_call_pending' || 
-               event.type === 'tool_executing' || 
-               event.type === 'tool_result')) {
+          if (
+            event.level === "node" &&
+            (event.type === "tool_call_pending" ||
+              event.type === "tool_executing" ||
+              event.type === "tool_result")
+          ) {
             // 相同工具的不同状态使用相同的 key,实现原地更新
-            eventKey = `tool_${event.data?.tool || 'unknown'}`;
+            eventKey = `tool_${event.data?.tool || "unknown"}`;
           } else {
             // 其他事件使用唯一 key
             eventKey = `${event.level}_${event.type}_${Date.now()}`;
@@ -262,76 +268,72 @@ export const NotionAIInterface: React.FC = () => {
             data: event.data,
             timestamp: Date.now(),
           });
-          
+
           // 转换为数组并实时更新消息的工作流事件
           const currentWorkflowEvents = Array.from(workflowEventsMap.values());
-          
+
           setState(prev => ({
             ...prev,
             messages: prev.messages.map(msg =>
-              msg.id === aiMessageId
-                ? { ...msg, workflowEvents: currentWorkflowEvents }
-                : msg
+              msg.id === aiMessageId ? { ...msg, workflowEvents: currentWorkflowEvents } : msg
             ),
           }));
         },
-        onToolCalls: (tools) => {
-          console.log('🔧 工具调用:', tools.map(t => t.function?.name).join(', '));
+        onToolCalls: tools => {
+          console.log("🔧 工具调用:", tools.map(t => t.function?.name).join(", "));
         },
-        onComplete: (fullContent) => {
-          console.log('✅ 消息完成，总字符数:', fullContent.length);
+        onComplete: fullContent => {
+          console.log("✅ 消息完成，总字符数:", fullContent.length);
           setState(prev => ({
             ...prev,
             messages: prev.messages.map(msg =>
-              msg.id === aiMessageId
-                ? { ...msg, isStreaming: false }
-                : msg
+              msg.id === aiMessageId ? { ...msg, isStreaming: false } : msg
             ),
-            isThinking: false
+            isThinking: false,
           }));
         },
-        onError: (error) => {
-          console.error('❌ API 错误:', error);
+        onError: error => {
+          console.error("❌ API 错误:", error);
           const errorInfo = error as any;
           setState(prev => ({
             ...prev,
             messages: prev.messages.map(msg =>
               msg.id === aiMessageId
-                ? { 
-                    ...msg, 
+                ? {
+                    ...msg,
                     content: errorInfo.friendlyMessage || error.message,
                     isStreaming: false,
                     error: {
                       message: error.message,
-                      type: errorInfo.type || 'unknown',
+                      type: errorInfo.type || "unknown",
                       canRetry: errorInfo.canRetry ?? true,
                       retryCount: errorInfo.retryCount || 0,
-                    }
+                    },
                   }
                 : msg
             ),
-            isThinking: false
+            isThinking: false,
           }));
-        }
+        },
       });
     } catch (error) {
-      console.error('发送消息失败:', error);
+      console.error("发送消息失败:", error);
     }
   };
 
-    // 重试消息
+  // 重试消息
   const handleRetryMessage = async (messageId: string) => {
     // 找到出错的 AI 消息和它对应的用户消息
     const errorMessageIndex = state.messages.findIndex(msg => msg.id === messageId);
     if (errorMessageIndex === -1 || errorMessageIndex === 0) return;
 
     const userMessage = state.messages[errorMessageIndex - 1];
-    if (userMessage.role !== 'user') return;
+    if (userMessage.role !== "user") return;
 
     // 删除错误的 AI 消息
     setState(prev => ({
       ...prev,
-      messages: prev.messages.filter(msg => msg.id !== messageId)
+      messages: prev.messages.filter(msg => msg.id !== messageId),
     }));
 
     // 重新发送用户消息
@@ -341,7 +343,7 @@ export const NotionAIInterface: React.FC = () => {
   // 重置到欢迎状态
   const handleReset = () => {
     setState({
-      mode: 'welcome',
+      mode: "welcome",
       messages: [],
       currentSession: `session_${Date.now()}`,
       isTransitioning: false,
@@ -358,18 +360,18 @@ export const NotionAIInterface: React.FC = () => {
 
       // 如果删除的是用户消息，也删除后面的AI回复
       const message = prev.messages[messageIndex];
-      let messagesToDelete = [messageId];
-      
-      if (message.role === 'user' && messageIndex < prev.messages.length - 1) {
+      const messagesToDelete = [messageId];
+
+      if (message.role === "user" && messageIndex < prev.messages.length - 1) {
         const nextMessage = prev.messages[messageIndex + 1];
-        if (nextMessage.role === 'assistant') {
+        if (nextMessage.role === "assistant") {
           messagesToDelete.push(nextMessage.id);
         }
       }
 
       return {
         ...prev,
-        messages: prev.messages.filter(msg => !messagesToDelete.includes(msg.id))
+        messages: prev.messages.filter(msg => !messagesToDelete.includes(msg.id)),
       };
     });
   };
@@ -387,13 +389,13 @@ export const NotionAIInterface: React.FC = () => {
       updatedMessages[messageIndex] = {
         ...updatedMessages[messageIndex],
         content: newContent.trim(),
-        timestamp: new Date()
+        timestamp: new Date(),
       };
 
       return {
         ...prev,
         messages: updatedMessages,
-        isThinking: true
+        isThinking: true,
       };
     });
 
@@ -402,52 +404,48 @@ export const NotionAIInterface: React.FC = () => {
   };
 
   return (
-    <div className="notion-ai-interface w-full h-screen bg-[var(--surface-base)] overflow-hidden">
-      <AnimatePresence mode="wait">
-        {state.mode === 'welcome' && (
+    <div className="notion-ai-interface relative w-full h-screen bg-[var(--surface-base)] overflow-hidden">
+      {/* 欢迎界面 - 绝对定位，向上滑出 */}
+      <AnimatePresence>
+        {state.mode === "welcome" && (
           <motion.div
             key="welcome"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ 
-              opacity: 0, 
-              y: -100,
-              scale: 0.95
+            initial={{ opacity: 1, y: 0 }}
+            exit={{
+              opacity: 0,
+              y: "-100%",
             }}
-            transition={{ 
-              duration: 0.6,
-              ease: [0.4, 0, 0.2, 1]
+            transition={{
+              duration: 0.5,
+              ease: [0.32, 0.72, 0, 1], // 自定义缓动：快速启动，平滑结束
             }}
-            className="w-full h-full"
+            className="absolute inset-0 z-20"
           >
-            <AIWelcomeState 
-              onSubmit={handleFirstMessage}
-              isTransitioning={state.isTransitioning}
-            />
+            <AIWelcomeState onSubmit={handleFirstMessage} isTransitioning={state.isTransitioning} />
           </motion.div>
         )}
-        
-        {state.mode === 'chat' && (
+      </AnimatePresence>
+
+      {/* 对话界面 - 从下方滑入 */}
+      <AnimatePresence>
+        {state.mode === "chat" && (
           <motion.div
             key="chat"
-            initial={{ 
-              opacity: 0, 
-              y: 50,
-              scale: 0.98
+            initial={{
+              opacity: 0,
+              y: "100%",
             }}
-            animate={{ 
-              opacity: 1, 
+            animate={{
+              opacity: 1,
               y: 0,
-              scale: 1
             }}
-            transition={{ 
-              duration: 0.4, 
-              delay: 0.3,
-              ease: [0.4, 0, 0.2, 1]
+            transition={{
+              duration: 0.5,
+              ease: [0.32, 0.72, 0, 1], // 与欢迎界面相同的缓动
             }}
-            className="w-full h-full"
+            className="absolute inset-0 z-10"
           >
-            <AIChatState 
+            <AIChatState
               messages={state.messages}
               onMessage={handleMessage}
               onReset={handleReset}
@@ -455,6 +453,7 @@ export const NotionAIInterface: React.FC = () => {
               onEditMessage={handleEditMessage}
               onRetryMessage={handleRetryMessage}
               isThinking={state.isThinking}
+              animated={true}
             />
           </motion.div>
         )}

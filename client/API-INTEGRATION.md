@@ -80,19 +80,21 @@ npm run dev
 ### 核心函数
 
 #### `sendStreamMessage()`
+
 发送流式消息并实时接收响应
 
 ```typescript
 await sendStreamMessage(
-  message,              // 用户消息
-  sessionId,           // 会话 ID
-  onChunk,             // 接收数据块回调
-  onComplete,          // 完成回调
-  onError              // 错误回调
+  message, // 用户消息
+  sessionId, // 会话 ID
+  onChunk, // 接收数据块回调
+  onComplete, // 完成回调
+  onError // 错误回调
 );
 ```
 
 #### `getChatHistory()`
+
 获取会话历史记录
 
 ```typescript
@@ -100,6 +102,7 @@ const messages = await getChatHistory(sessionId);
 ```
 
 #### `clearSession()`
+
 清除指定会话
 
 ```typescript
@@ -115,21 +118,21 @@ await clearSession(sessionId);
 ```typescript
 const reader = response.body?.getReader();
 const decoder = new TextDecoder();
-let buffer = '';
-let fullResponse = '';
+let buffer = "";
+let fullResponse = "";
 
 while (true) {
   const { done, value } = await reader.read();
   if (done) break;
 
   buffer += decoder.decode(value, { stream: true });
-  const lines = buffer.split('\n');
-  buffer = lines.pop() || '';
+  const lines = buffer.split("\n");
+  buffer = lines.pop() || "";
 
   for (const line of lines) {
-    if (line.startsWith('data:')) {
+    if (line.startsWith("data:")) {
       const data = JSON.parse(line.slice(5));
-      if (data.type === 'delta') {
+      if (data.type === "delta") {
         fullResponse += data.content;
         onChunk(data.content, fullResponse);
       }
@@ -152,6 +155,7 @@ while (true) {
 ### Q: 提示 "API 错误" 怎么办？
 
 **A**: 检查以下几点：
+
 1. 后端服务是否启动 (`http://localhost:8000`)
 2. API Key 是否正确 (`dev-test-key-123`)
 3. 防火墙是否阻止连接
@@ -159,7 +163,8 @@ while (true) {
 
 ### Q: 消息没有流式输出？
 
-**A**: 
+**A**:
+
 1. 检查后端是否支持 SSE (Server-Sent Events)
 2. 确认请求参数 `stream: true`
 3. 检查浏览器是否支持 ReadableStream
@@ -195,5 +200,3 @@ while (true) {
 ---
 
 ✅ **API 集成已完成，现在可以使用真实的 AI 对话功能了！**
-
-

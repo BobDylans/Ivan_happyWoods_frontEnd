@@ -10,12 +10,9 @@ const cardVariants = cva(
   {
     variants: {
       variant: {
-        default:
-          "bg-[var(--surface-elevated)] border border-[var(--border-subtle)]",
-        elevated:
-          "bg-[var(--surface-elevated)] shadow-[var(--shadow-md)]",
-        outlined:
-          "bg-transparent border-2 border-[var(--border-default)]",
+        default: "bg-[var(--surface-elevated)] border border-[var(--border-subtle)]",
+        elevated: "bg-[var(--surface-elevated)] shadow-[var(--shadow-md)]",
+        outlined: "bg-transparent border-2 border-[var(--border-default)]",
       },
       padding: {
         none: "p-0",
@@ -41,7 +38,7 @@ export interface CardProps
 /**
  * Card Component
  * Content container with optional hover animation
- * 
+ *
  * @example
  * <Card variant="elevated" padding="lg">Content</Card>
  * <Card interactive>Hover me</Card>
@@ -82,16 +79,11 @@ Card.displayName = "Card";
  * Card Header
  * Top section of card for title and description
  */
-export const CardHeader = React.forwardRef<
-  HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement>
->(({ className, ...props }, ref) => (
-  <div
-    ref={ref}
-    className={cn("flex flex-col gap-1.5 pb-3", className)}
-    {...props}
-  />
-));
+export const CardHeader = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
+  ({ className, ...props }, ref) => (
+    <div ref={ref} className={cn("flex flex-col gap-1.5 pb-3", className)} {...props} />
+  )
+);
 
 CardHeader.displayName = "CardHeader";
 
@@ -123,11 +115,7 @@ export const CardDescription = React.forwardRef<
   HTMLParagraphElement,
   React.HTMLAttributes<HTMLParagraphElement>
 >(({ className, ...props }, ref) => (
-  <p
-    ref={ref}
-    className={cn("text-sm text-[var(--text-secondary)]", className)}
-    {...props}
-  />
+  <p ref={ref} className={cn("text-sm text-[var(--text-secondary)]", className)} {...props} />
 ));
 
 CardDescription.displayName = "CardDescription";
@@ -136,12 +124,9 @@ CardDescription.displayName = "CardDescription";
  * Card Content
  * Main content area of card
  */
-export const CardContent = React.forwardRef<
-  HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement>
->(({ className, ...props }, ref) => (
-  <div ref={ref} className={cn("", className)} {...props} />
-));
+export const CardContent = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
+  ({ className, ...props }, ref) => <div ref={ref} className={cn("", className)} {...props} />
+);
 
 CardContent.displayName = "CardContent";
 
@@ -149,15 +134,10 @@ CardContent.displayName = "CardContent";
  * Card Footer
  * Bottom section of card for actions
  */
-export const CardFooter = React.forwardRef<
-  HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement>
->(({ className, ...props }, ref) => (
-  <div
-    ref={ref}
-    className={cn("flex items-center gap-2 pt-3", className)}
-    {...props}
-  />
-));
+export const CardFooter = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
+  ({ className, ...props }, ref) => (
+    <div ref={ref} className={cn("flex items-center gap-2 pt-3", className)} {...props} />
+  )
+);
 
 CardFooter.displayName = "CardFooter";

@@ -1,18 +1,12 @@
 "use client";
 
-import React from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  Clock, 
-  Brain, 
-  ArrowRight, 
-  CheckCircle, 
-  Sparkles 
-} from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { NodeList } from './node-indicator';
-import { ToolList } from './tool-card';
-import type { WorkflowState } from '@/types/workflow';
+import React from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Clock, Brain, ArrowRight, CheckCircle, Sparkles } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { NodeList } from "./node-indicator";
+import { ToolList } from "./tool-card";
+import type { WorkflowState } from "@/types/workflow";
 
 export interface WorkflowTimelineProps {
   /** 工作流状态 */
@@ -25,9 +19,9 @@ export interface WorkflowTimelineProps {
 
 /**
  * 工作流时间线组件
- * 
+ *
  * 可视化展示 AI 的思考和执行过程
- * 
+ *
  * @example
  * ```tsx
  * <WorkflowTimeline
@@ -41,15 +35,8 @@ export const WorkflowTimeline: React.FC<WorkflowTimelineProps> = ({
   show = true,
   className,
 }) => {
-  const {
-    isRunning,
-    nodes,
-    tools,
-    thinkingPhases,
-    routeDecisions,
-    isComplete,
-    totalDurationMs,
-  } = workflowState;
+  const { isRunning, nodes, tools, thinkingPhases, routeDecisions, isComplete, totalDurationMs } =
+    workflowState;
 
   if (!show) return null;
 
@@ -60,10 +47,10 @@ export const WorkflowTimeline: React.FC<WorkflowTimelineProps> = ({
       exit={{ opacity: 0, y: -10 }}
       transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
       className={cn(
-        'rounded-xl overflow-hidden',
-        'bg-gradient-to-br from-gray-50 to-gray-100',
-        'border border-[var(--border-subtle)]',
-        'shadow-sm',
+        "rounded-xl overflow-hidden",
+        "bg-gradient-to-br from-gray-50 to-gray-100",
+        "border border-[var(--border-subtle)]",
+        "shadow-sm",
         className
       )}
     >
@@ -71,9 +58,7 @@ export const WorkflowTimeline: React.FC<WorkflowTimelineProps> = ({
       <div className="px-4 py-3 bg-white border-b border-[var(--border-subtle)]">
         <div className="flex items-center gap-2">
           <Clock className="w-4 h-4 text-blue-500" />
-          <span className="text-sm font-semibold text-[var(--text-primary)]">
-            执行流程
-          </span>
+          <span className="text-sm font-semibold text-[var(--text-primary)]">执行流程</span>
           {isRunning && (
             <motion.div
               animate={{ scale: [1, 1.2, 1] }}
@@ -96,9 +81,7 @@ export const WorkflowTimeline: React.FC<WorkflowTimelineProps> = ({
         {/* 节点列表 */}
         {nodes.length > 0 && (
           <div>
-            <div className="text-xs font-medium text-[var(--text-tertiary)] mb-2">
-              执行节点
-            </div>
+            <div className="text-xs font-medium text-[var(--text-tertiary)] mb-2">执行节点</div>
             <NodeList nodes={nodes} />
           </div>
         )}
@@ -108,12 +91,10 @@ export const WorkflowTimeline: React.FC<WorkflowTimelineProps> = ({
           {thinkingPhases.length > 0 && (
             <motion.div
               initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
+              animate={{ opacity: 1, height: "auto" }}
               exit={{ opacity: 0, height: 0 }}
             >
-              <div className="text-xs font-medium text-[var(--text-tertiary)] mb-2">
-                思考阶段
-              </div>
+              <div className="text-xs font-medium text-[var(--text-tertiary)] mb-2">思考阶段</div>
               <div className="space-y-2">
                 {thinkingPhases.map((phase, index) => (
                   <motion.div
@@ -125,13 +106,9 @@ export const WorkflowTimeline: React.FC<WorkflowTimelineProps> = ({
                   >
                     <Brain className="w-4 h-4 text-blue-500 flex-shrink-0" />
                     <div className="flex-1 min-w-0">
-                      <div className="text-sm font-medium text-blue-900">
-                        {phase.phase}
-                      </div>
+                      <div className="text-sm font-medium text-blue-900">{phase.phase}</div>
                       {phase.details && (
-                        <div className="text-xs text-blue-700 mt-0.5">
-                          {phase.details}
-                        </div>
+                        <div className="text-xs text-blue-700 mt-0.5">{phase.details}</div>
                       )}
                     </div>
                   </motion.div>
@@ -146,12 +123,10 @@ export const WorkflowTimeline: React.FC<WorkflowTimelineProps> = ({
           {routeDecisions.length > 0 && (
             <motion.div
               initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
+              animate={{ opacity: 1, height: "auto" }}
               exit={{ opacity: 0, height: 0 }}
             >
-              <div className="text-xs font-medium text-[var(--text-tertiary)] mb-2">
-                路由决策
-              </div>
+              <div className="text-xs font-medium text-[var(--text-tertiary)] mb-2">路由决策</div>
               <div className="space-y-2">
                 {routeDecisions.map((decision, index) => (
                   <motion.div
@@ -162,13 +137,9 @@ export const WorkflowTimeline: React.FC<WorkflowTimelineProps> = ({
                     className="flex items-center gap-2 px-3 py-2 rounded-lg bg-amber-50 border border-amber-100"
                   >
                     <div className="flex items-center gap-2 flex-1">
-                      <span className="text-sm font-medium text-amber-900">
-                        {decision.from}
-                      </span>
+                      <span className="text-sm font-medium text-amber-900">{decision.from}</span>
                       <ArrowRight className="w-4 h-4 text-amber-500" />
-                      <span className="text-sm font-medium text-amber-900">
-                        {decision.to}
-                      </span>
+                      <span className="text-sm font-medium text-amber-900">{decision.to}</span>
                     </div>
                     {decision.reason && (
                       <span className="text-xs text-amber-700 flex-shrink-0">
@@ -185,9 +156,7 @@ export const WorkflowTimeline: React.FC<WorkflowTimelineProps> = ({
         {/* 工具调用 */}
         {tools.length > 0 && (
           <div>
-            <div className="text-xs font-medium text-[var(--text-tertiary)] mb-2">
-              工具调用
-            </div>
+            <div className="text-xs font-medium text-[var(--text-tertiary)] mb-2">工具调用</div>
             <ToolList tools={tools} />
           </div>
         )}
@@ -203,14 +172,10 @@ export const WorkflowTimeline: React.FC<WorkflowTimelineProps> = ({
             >
               <div className="flex items-center gap-2">
                 <CheckCircle className="w-5 h-5 text-green-500" />
-                <span className="text-sm font-semibold text-green-900">
-                  工作流完成
-                </span>
+                <span className="text-sm font-semibold text-green-900">工作流完成</span>
               </div>
               {totalDurationMs && (
-                <span className="text-sm text-green-700">
-                  {totalDurationMs.toFixed(0)}ms
-                </span>
+                <span className="text-sm text-green-700">{totalDurationMs.toFixed(0)}ms</span>
               )}
             </motion.div>
           )}
@@ -227,7 +192,7 @@ export const WorkflowTimeline: React.FC<WorkflowTimelineProps> = ({
             >
               <motion.div
                 animate={{ rotate: 360 }}
-                transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
+                transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
               >
                 <Sparkles className="w-4 h-4 text-blue-500" />
               </motion.div>
@@ -242,7 +207,7 @@ export const WorkflowTimeline: React.FC<WorkflowTimelineProps> = ({
 
 /**
  * 精简版工作流指示器
- * 
+ *
  * 只显示关键信息，适合内联显示
  */
 export interface WorkflowIndicatorProps {
@@ -261,15 +226,15 @@ export const WorkflowIndicator: React.FC<WorkflowIndicatorProps> = ({
   return (
     <div
       className={cn(
-        'inline-flex items-center gap-2 px-2 py-1 rounded-md text-xs',
-        isRunning ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-700',
+        "inline-flex items-center gap-2 px-2 py-1 rounded-md text-xs",
+        isRunning ? "bg-blue-100 text-blue-700" : "bg-gray-100 text-gray-700",
         className
       )}
     >
       {isRunning && (
         <motion.div
           animate={{ rotate: 360 }}
-          transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+          transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
         >
           <Sparkles className="w-3 h-3" />
         </motion.div>

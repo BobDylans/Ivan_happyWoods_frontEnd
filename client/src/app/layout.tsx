@@ -8,7 +8,8 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "Ivan_HappyWoods Design System",
-  description: "A warm, natural, and intelligent design system built with warm tones, natural curves, and intelligent interactions",
+  description:
+    "A warm, natural, and intelligent design system built with warm tones, natural curves, and intelligent interactions",
   keywords: ["design system", "UI components", "React", "Next.js", "accessibility", "WCAG AAA"],
 };
 
@@ -21,9 +22,7 @@ export default function RootLayout({
     <html lang="zh-CN" suppressHydrationWarning>
       <body className="antialiased font-sans">
         <ThemeProvider>
-          <ErrorBoundary>
-            {children}
-          </ErrorBoundary>
+          <ErrorBoundary>{children}</ErrorBoundary>
         </ThemeProvider>
       </body>
     </html>

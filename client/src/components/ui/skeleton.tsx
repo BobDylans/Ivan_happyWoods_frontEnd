@@ -1,57 +1,57 @@
 "use client";
 
-import React from 'react';
-import { motion } from 'framer-motion';
-import { Sparkles, Brain, MessageSquare } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import React from "react";
+import { motion } from "framer-motion";
+import { Sparkles, Brain, MessageSquare } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface SkeletonProps {
   className?: string;
   /** 是否显示动画 */
   animated?: boolean;
   /** 圆角大小 */
-  rounded?: 'none' | 'sm' | 'md' | 'lg' | 'full';
+  rounded?: "none" | "sm" | "md" | "lg" | "full";
 }
 
 /**
  * 骨架屏基础组件
- * 
+ *
  * 用于显示加载状态的占位符，使用设计系统的标准颜色
- * 
+ *
  * @example
  * ```tsx
  * <Skeleton className="h-4 w-48" />
  * <Skeleton className="h-12 w-12" rounded="full" />
  * ```
  */
-export function Skeleton({ 
-  className, 
-  animated = true,
-  rounded = 'md',
-}: SkeletonProps) {
+export function Skeleton({ className, animated = true, rounded = "md" }: SkeletonProps) {
   const roundedClasses = {
-    none: 'rounded-none',
-    sm: 'rounded-sm',
-    md: 'rounded-md',
-    lg: 'rounded-lg',
-    full: 'rounded-full',
+    none: "rounded-none",
+    sm: "rounded-sm",
+    md: "rounded-md",
+    lg: "rounded-lg",
+    full: "rounded-full",
   };
 
   return (
     <motion.div
       className={cn(
         // 使用设计系统的颜色变量，确保与实际内容一致
-        'bg-[var(--border-subtle)]',
+        "bg-[var(--border-subtle)]",
         roundedClasses[rounded],
         className
       )}
-      animate={animated ? {
-        opacity: [0.3, 0.6, 0.3],
-      } : {}}
+      animate={
+        animated
+          ? {
+              opacity: [0.3, 0.6, 0.3],
+            }
+          : {}
+      }
       transition={{
         duration: 2,
         repeat: Infinity,
-        ease: 'easeInOut',
+        ease: "easeInOut",
       }}
     />
   );
@@ -59,7 +59,7 @@ export function Skeleton({
 
 /**
  * AI 思考动画组件
- * 
+ *
  * 显示 AI 正在思考的动画效果
  */
 export function ThinkingIndicator() {
@@ -71,7 +71,7 @@ export function ThinkingIndicator() {
         transition={{
           duration: 2,
           repeat: Infinity,
-          ease: 'linear',
+          ease: "linear",
         }}
         className="flex-shrink-0"
       >
@@ -80,11 +80,9 @@ export function ThinkingIndicator() {
 
       {/* 思考文字 - 使用与实际消息相同的文字样式 */}
       <div className="flex-1">
-        <div className="text-sm text-[var(--text-secondary)]">
-          正在思考...
-        </div>
+        <div className="text-sm text-[var(--text-secondary)]">正在思考...</div>
         <div className="flex items-center gap-1 mt-1">
-          {[0, 1, 2].map((i) => (
+          {[0, 1, 2].map(i => (
             <motion.div
               key={i}
               className="w-1.5 h-1.5 bg-[var(--text-tertiary)] rounded-full"
@@ -96,7 +94,7 @@ export function ThinkingIndicator() {
                 duration: 1.5,
                 repeat: Infinity,
                 delay: i * 0.2,
-                ease: 'easeInOut',
+                ease: "easeInOut",
               }}
             />
           ))}
@@ -112,7 +110,7 @@ export function ThinkingIndicator() {
         transition={{
           duration: 2,
           repeat: Infinity,
-          ease: 'easeInOut',
+          ease: "easeInOut",
         }}
         className="flex-shrink-0"
       >
@@ -127,7 +125,7 @@ export function ThinkingIndicator() {
  */
 export function MessageSkeleton({ isUser = false }: { isUser?: boolean }) {
   return (
-    <div className={cn('flex gap-3 mb-6', isUser && 'flex-row-reverse')}>
+    <div className={cn("flex gap-3 mb-6", isUser && "flex-row-reverse")}>
       {/* 头像 */}
       <motion.div
         className={cn(
@@ -142,7 +140,7 @@ export function MessageSkeleton({ isUser = false }: { isUser?: boolean }) {
         transition={{
           duration: 2,
           repeat: Infinity,
-          ease: 'easeInOut',
+          ease: "easeInOut",
         }}
       >
         {isUser ? (
@@ -153,25 +151,27 @@ export function MessageSkeleton({ isUser = false }: { isUser?: boolean }) {
             transition={{
               duration: 3,
               repeat: Infinity,
-              ease: 'linear',
+              ease: "linear",
             }}
           >
             <Sparkles className="w-5 h-5 text-white" />
           </motion.div>
         )}
       </motion.div>
-      
+
       {/* 消息内容 */}
       <div className="flex-1 max-w-2xl space-y-3">
         {!isUser && <ThinkingIndicator />}
-        
+
         {/* 消息框骨架 - 使用与实际消息相同的背景 */}
-        <div className={cn(
-          "p-4 rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-elevated)]"
-        )}>
+        <div
+          className={cn(
+            "p-4 rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-elevated)]"
+          )}
+        >
           <div className="space-y-2.5">
             {/* 文字行骨架 - 使用更接近实际文字的样式 */}
-            {[0, 1, 2].map((i) => (
+            {[0, 1, 2].map(i => (
               <motion.div
                 key={i}
                 className={cn(
@@ -185,7 +185,7 @@ export function MessageSkeleton({ isUser = false }: { isUser?: boolean }) {
                   duration: 2,
                   repeat: Infinity,
                   delay: i * 0.2,
-                  ease: 'easeInOut',
+                  ease: "easeInOut",
                 }}
               />
             ))}
@@ -236,7 +236,7 @@ export function CardSkeleton() {
           transition={{
             duration: 2,
             repeat: Infinity,
-            ease: 'easeInOut',
+            ease: "easeInOut",
           }}
         >
           <Sparkles className="w-6 h-6 text-white" />
@@ -304,4 +304,3 @@ export function SearchResultSkeleton() {
     </div>
   );
 }
-

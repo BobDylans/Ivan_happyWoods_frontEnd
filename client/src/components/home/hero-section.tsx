@@ -1,15 +1,15 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Button } from '@/components/ui/button/button';
-import { Sparkles, ArrowRight, Leaf } from 'lucide-react';
-import { useRouter } from 'next/navigation';
-import Image from 'next/image';
+import React, { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Button } from "@/components/ui/button/button";
+import { Sparkles, ArrowRight, Leaf } from "lucide-react";
+import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 /**
  * Hero Section 组件
- * 
+ *
  * 特性：
  * - 全屏轮播图背景
  * - 自动切换（5秒间隔）
@@ -26,25 +26,25 @@ export const HeroSection: React.FC = () => {
   const images = [
     {
       // 温暖的森林阳光 - 金色光线穿过树林
-      url: 'https://images.pexels.com/photos/1166209/pexels-photo-1166209.jpeg?auto=compress&cs=tinysrgb&w=1920',
-      alt: '温暖的森林阳光',
+      url: "https://images.pexels.com/photos/1166209/pexels-photo-1166209.jpeg?auto=compress&cs=tinysrgb&w=1920",
+      alt: "温暖的森林阳光",
     },
     {
       // 秋日森林小径 - 金黄色的树叶和阳光
-      url: 'https://images.pexels.com/photos/1496373/pexels-photo-1496373.jpeg?auto=compress&cs=tinysrgb&w=1920',
-      alt: '秋日森林小径',
+      url: "https://images.pexels.com/photos/1496373/pexels-photo-1496373.jpeg?auto=compress&cs=tinysrgb&w=1920",
+      alt: "秋日森林小径",
     },
     {
       // 日出森林湖泊 - 温暖金色倒影与宁静氛围
-      url: 'https://images.pexels.com/photos/1323550/pexels-photo-1323550.jpeg?auto=compress&cs=tinysrgb&w=1920',
-      alt: '日出森林湖泊',
+      url: "https://images.pexels.com/photos/1323550/pexels-photo-1323550.jpeg?auto=compress&cs=tinysrgb&w=1920",
+      alt: "日出森林湖泊",
     },
   ];
 
   // 自动轮播
   useEffect(() => {
     const timer = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % images.length);
+      setCurrentSlide(prev => (prev + 1) % images.length);
     }, 5000); // 5秒切换一次
 
     return () => clearInterval(timer);
@@ -52,7 +52,7 @@ export const HeroSection: React.FC = () => {
 
   // 跳转到 AI 对话
   const handleStartChat = () => {
-    router.push('/notion-ai');
+    router.push("/notion-ai");
   };
 
   return (
@@ -60,34 +60,35 @@ export const HeroSection: React.FC = () => {
       {/* 背景轮播图 */}
       <div className="absolute inset-0">
         <AnimatePresence mode="wait">
-          {images.map((image, index) => (
-            index === currentSlide && (
-              <motion.div
-                key={index}
-                className="absolute inset-0"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 1.5, ease: "easeInOut" }}
-              >
-                {/* 使用 Next.js Image 组件优化加载 */}
-                <div className="relative w-full h-full">
-                  <Image
-                    src={image.url}
-                    alt={image.alt}
-                    fill
-                    priority={index === 0}  // 第一张图片优先加载
-                    loading={index === 0 ? 'eager' : 'lazy'}  // 其他图片懒加载
-                    className="object-cover"
-                    quality={75}  // 降低质量以提高加载速度（75 是最佳平衡点）
-                    sizes="100vw"
-                    placeholder="blur"
-                    blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCwABmgAAAA/9k="
-                  />
-                </div>
-              </motion.div>
-            )
-          ))}
+          {images.map(
+            (image, index) =>
+              index === currentSlide && (
+                <motion.div
+                  key={index}
+                  className="absolute inset-0"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 1.5, ease: "easeInOut" }}
+                >
+                  {/* 使用 Next.js Image 组件优化加载 */}
+                  <div className="relative w-full h-full">
+                    <Image
+                      src={image.url}
+                      alt={image.alt}
+                      fill
+                      priority={index === 0} // 第一张图片优先加载
+                      loading={index === 0 ? "eager" : "lazy"} // 其他图片懒加载
+                      className="object-cover"
+                      quality={75} // 降低质量以提高加载速度（75 是最佳平衡点）
+                      sizes="100vw"
+                      placeholder="blur"
+                      blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCwABmgAAAA/9k="
+                    />
+                  </div>
+                </motion.div>
+              )
+          )}
         </AnimatePresence>
       </div>
 
@@ -167,8 +168,8 @@ export const HeroSection: React.FC = () => {
               size="lg"
               onClick={() => {
                 // 平滑滚动到特性区域
-                document.getElementById('features')?.scrollIntoView({ 
-                  behavior: 'smooth' 
+                document.getElementById("features")?.scrollIntoView({
+                  behavior: "smooth",
                 });
               }}
               className="bg-white/10 backdrop-blur-sm border-white/30 text-white hover:bg-white/20 transition-all duration-300 px-8 py-6 text-lg"
@@ -187,25 +188,20 @@ export const HeroSection: React.FC = () => {
         >
           <motion.div
             animate={{ y: [0, 10, 0] }}
-            transition={{ 
-              duration: 2, 
-              repeat: Infinity, 
-              ease: "easeInOut" 
+            transition={{
+              duration: 2,
+              repeat: Infinity,
+              ease: "easeInOut",
             }}
             className="flex flex-col items-center text-white/60"
           >
             <span className="text-sm mb-2">向下滚动</span>
-            <svg 
-              className="w-6 h-6" 
-              fill="none" 
-              stroke="currentColor" 
-              viewBox="0 0 24 24"
-            >
-              <path 
-                strokeLinecap="round" 
-                strokeLinejoin="round" 
-                strokeWidth={2} 
-                d="M19 14l-7 7m0 0l-7-7m7 7V3" 
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M19 14l-7 7m0 0l-7-7m7 7V3"
               />
             </svg>
           </motion.div>
@@ -219,9 +215,7 @@ export const HeroSection: React.FC = () => {
             key={index}
             onClick={() => setCurrentSlide(index)}
             className={`w-2 h-2 rounded-full transition-all duration-300 ${
-              index === currentSlide
-                ? 'bg-white w-8'
-                : 'bg-white/40 hover:bg-white/60'
+              index === currentSlide ? "bg-white w-8" : "bg-white/40 hover:bg-white/60"
             }`}
             aria-label={`切换到幻灯片 ${index + 1}`}
           />
@@ -230,5 +224,3 @@ export const HeroSection: React.FC = () => {
     </section>
   );
 };
-
-

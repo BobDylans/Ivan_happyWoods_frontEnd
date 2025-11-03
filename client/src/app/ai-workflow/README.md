@@ -114,18 +114,21 @@ http://localhost:3000/ai-workflow
 ## 🎨 UI 特性
 
 ### 动画效果
+
 - ✨ Framer Motion 流畅动画
 - 🎭 进入/退出过渡
 - 🔄 旋转加载指示器
 - 📊 渐进式展示
 
 ### 响应式设计
+
 - 📱 移动端适配
 - 💻 桌面端优化
 - 🎯 4px 基线网格
 - 🌈 温暖自然配色
 
 ### 性能优化
+
 - ⚡ 渲染节流（100ms）
 - 🚀 requestAnimationFrame 滚动
 - 💾 状态持久化
@@ -185,41 +188,44 @@ AIWorkflowPage
 
 ### Graph 层事件（调度级别）
 
-| 事件类型 | 说明 | 数据 |
-|---------|------|-----|
-| `workflow_started` | 工作流开始 | workflow_name |
-| `node_started` | 节点开始执行 | node, display_name |
-| `node_finished` | 节点完成 | node, display_name, duration_ms |
-| `route_decision` | 路由决策 | from, to, reason |
-| `workflow_complete` | 工作流完成 | total_duration_ms, status |
+| 事件类型            | 说明         | 数据                            |
+| ------------------- | ------------ | ------------------------------- |
+| `workflow_started`  | 工作流开始   | workflow_name                   |
+| `node_started`      | 节点开始执行 | node, display_name              |
+| `node_finished`     | 节点完成     | node, display_name, duration_ms |
+| `route_decision`    | 路由决策     | from, to, reason                |
+| `workflow_complete` | 工作流完成   | total_duration_ms, status       |
 
 ### Node 层事件（执行级别）
 
-| 事件类型 | 说明 | 数据 |
-|---------|------|-----|
-| `thinking_phase` | 思考阶段 | phase, details |
-| `tool_call_pending` | 工具排队 | tool, args |
-| `tool_executing` | 工具执行中 | tool |
-| `tool_result` | 工具结果 | tool, success, summary, duration_ms |
-| `llm_streaming` | LLM 流式输出 | phase, details |
+| 事件类型            | 说明         | 数据                                |
+| ------------------- | ------------ | ----------------------------------- |
+| `thinking_phase`    | 思考阶段     | phase, details                      |
+| `tool_call_pending` | 工具排队     | tool, args                          |
+| `tool_executing`    | 工具执行中   | tool                                |
+| `tool_result`       | 工具结果     | tool, success, summary, duration_ms |
+| `llm_streaming`     | LLM 流式输出 | phase, details                      |
 
 ---
 
 ## 🎯 下一步优化建议
 
 ### 功能增强
+
 - [ ] 添加工作流可折叠/展开功能
 - [ ] 支持导出工作流数据（JSON）
 - [ ] 添加工作流统计（平均耗时、成功率）
 - [ ] 实现工作流重放功能
 
 ### 性能优化
+
 - [ ] 虚拟滚动（长对话列表）
 - [ ] Web Worker 处理大量事件
 - [ ] IndexedDB 持久化
 - [ ] 流式渲染优化
 
 ### UI/UX
+
 - [ ] 深色模式支持
 - [ ] 自定义主题配置
 - [ ] 工作流可视化图表
@@ -249,23 +255,23 @@ AIWorkflowPage
 
 ```typescript
 const { sendMessage, isStreaming, abort } = useSSEStream({
-  apiUrl: 'http://localhost:8000',
-  apiKey: 'your-api-key',
-  sessionId: 'session_123',
+  apiUrl: "http://localhost:8000",
+  apiKey: "your-api-key",
+  sessionId: "session_123",
 });
 
-await sendMessage('你好', {
-  onDelta: (content) => {
-    console.log('收到内容:', content);
+await sendMessage("你好", {
+  onDelta: content => {
+    console.log("收到内容:", content);
   },
-  onWorkflowEvent: (event) => {
-    console.log('工作流事件:', event);
+  onWorkflowEvent: event => {
+    console.log("工作流事件:", event);
   },
-  onComplete: (fullContent) => {
-    console.log('完成:', fullContent);
+  onComplete: fullContent => {
+    console.log("完成:", fullContent);
   },
-  onError: (error) => {
-    console.error('错误:', error);
+  onError: error => {
+    console.error("错误:", error);
   },
 });
 ```
@@ -277,12 +283,12 @@ const { updateWorkflowState, currentWorkflowState } = useAIStore();
 
 // 接收到工作流事件
 updateWorkflowState({
-  type: 'node_started',
-  level: 'graph',
+  type: "node_started",
+  level: "graph",
   timestamp: Date.now(),
   data: {
-    node: 'agent',
-    display_name: 'AI Agent',
+    node: "agent",
+    display_name: "AI Agent",
   },
 });
 ```
@@ -290,10 +296,7 @@ updateWorkflowState({
 ### 显示工作流时间线
 
 ```tsx
-<WorkflowTimeline
-  workflowState={currentWorkflowState}
-  show={true}
-/>
+<WorkflowTimeline workflowState={currentWorkflowState} show={true} />
 ```
 
 ---
@@ -308,7 +311,7 @@ updateWorkflowState({
 ✅ 精美的 UI 组件  
 ✅ 流畅的动画效果  
 ✅ 性能优化  
-✅ 完整的错误处理  
+✅ 完整的错误处理
 
 **立即访问** `/ai-workflow` 体验完整功能！🚀
 
@@ -317,6 +320,7 @@ updateWorkflowState({
 ## 📞 技术支持
 
 如有问题，请查看：
+
 1. 控制台日志（F12）
 2. 网络请求（Network 面板）
 3. 后端日志

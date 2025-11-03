@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useCallback } from 'react';
+import { useEffect, useCallback } from "react";
 
 /**
  * 键盘快捷键配置
@@ -25,13 +25,13 @@ export interface KeyboardShortcut {
 /**
  * 检测是否为 Mac
  */
-const isMac = typeof window !== 'undefined' && navigator.platform.toUpperCase().indexOf('MAC') >= 0;
+const isMac = typeof window !== "undefined" && navigator.platform.toUpperCase().indexOf("MAC") >= 0;
 
 /**
  * 键盘快捷键 Hook
- * 
+ *
  * 提供全局键盘快捷键管理
- * 
+ *
  * @example
  * ```tsx
  * useKeyboardShortcuts([
@@ -54,15 +54,14 @@ export function useKeyboardShortcuts(shortcuts: KeyboardShortcut[]) {
     (event: KeyboardEvent) => {
       // 忽略输入框中的快捷键（除了 Escape）
       const target = event.target as HTMLElement;
-      const isInput = target.tagName === 'INPUT' || 
-                      target.tagName === 'TEXTAREA' || 
-                      target.isContentEditable;
+      const isInput =
+        target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.isContentEditable;
 
       for (const shortcut of shortcuts) {
         if (shortcut.disabled) continue;
 
         // Escape 键总是响应
-        const shouldIgnoreInput = shortcut.key !== 'Escape' && isInput;
+        const shouldIgnoreInput = shortcut.key !== "Escape" && isInput;
         if (shouldIgnoreInput) continue;
 
         // 检查按键匹配
@@ -83,9 +82,9 @@ export function useKeyboardShortcuts(shortcuts: KeyboardShortcut[]) {
   );
 
   useEffect(() => {
-    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener("keydown", handleKeyDown);
     return () => {
-      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener("keydown", handleKeyDown);
     };
   }, [handleKeyDown]);
 }
@@ -95,18 +94,18 @@ export function useKeyboardShortcuts(shortcuts: KeyboardShortcut[]) {
  */
 export function formatShortcut(shortcut: KeyboardShortcut): string {
   const parts: string[] = [];
-  
+
   if (shortcut.ctrlOrCmd) {
-    parts.push(isMac ? '⌘' : 'Ctrl');
+    parts.push(isMac ? "⌘" : "Ctrl");
   }
   if (shortcut.shift) {
-    parts.push('Shift');
+    parts.push("Shift");
   }
   if (shortcut.alt) {
-    parts.push(isMac ? '⌥' : 'Alt');
+    parts.push(isMac ? "⌥" : "Alt");
   }
-  
+
   parts.push(shortcut.key.toUpperCase());
-  
-  return parts.join(isMac ? '' : '+');
+
+  return parts.join(isMac ? "" : "+");
 }

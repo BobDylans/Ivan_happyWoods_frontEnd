@@ -7,9 +7,7 @@ import { Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { buttonVariants, type ButtonVariants } from "./button-variants";
 
-export interface ButtonProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement>,
-    ButtonVariants {
+export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement>, ButtonVariants {
   /** Render as a child component (Slot pattern) */
   asChild?: boolean;
   /** Show loading spinner */
@@ -24,14 +22,14 @@ export interface ButtonProps
  * Button Component
  * Primary interactive element with hover animations (scale 1.05, spring easing)
  * Supports keyboard navigation and WCAG AAA accessibility
- * 
+ *
  * Features:
  * - Type-safe variants using CVA
  * - Slot pattern support for composition
  * - Loading state with spinner
  * - Left/right icon support
  * - Smooth hover/tap animations
- * 
+ *
  * @example
  * ```tsx
  * <Button variant="primary" size="default">Click me</Button>
@@ -82,19 +80,15 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       >
         {/* 加载状态显示 spinner */}
         {loadingState && <Loader2 className="animate-spin" />}
-        
+
         {/* 左侧图标 */}
-        {!loadingState && leftIcon && (
-          <span className="inline-flex shrink-0">{leftIcon}</span>
-        )}
-        
+        {!loadingState && leftIcon && <span className="inline-flex shrink-0">{leftIcon}</span>}
+
         {/* 按钮内容 */}
         <span>{children}</span>
-        
+
         {/* 右侧图标 */}
-        {!loadingState && rightIcon && (
-          <span className="inline-flex shrink-0">{rightIcon}</span>
-        )}
+        {!loadingState && rightIcon && <span className="inline-flex shrink-0">{rightIcon}</span>}
       </MotionComp>
     );
   }

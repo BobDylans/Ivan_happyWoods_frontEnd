@@ -7,10 +7,10 @@ import { Button } from "@/components/ui/button/button";
 
 /**
  * Theme Toggle Component
- * 
+ *
  * 主题切换按钮，点击切换浅色/深色模式
  * 使用平滑的旋转动画过渡
- * 
+ *
  * @example
  * ```tsx
  * <ThemeToggle />
@@ -28,11 +28,7 @@ export function ThemeToggle() {
   // 在客户端渲染前不显示内容
   if (!mounted) {
     return (
-      <Button
-        variant="ghost"
-        size="icon"
-        aria-label="切换主题"
-      >
+      <Button variant="ghost" size="icon" aria-label="切换主题">
         <div className="h-5 w-5" />
       </Button>
     );
@@ -52,4 +48,3 @@ export function ThemeToggle() {
     </Button>
   );
 }
-

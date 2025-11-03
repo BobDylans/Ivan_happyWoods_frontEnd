@@ -1,28 +1,28 @@
 "use client";
 
-import React from 'react';
-import { motion } from 'framer-motion';
-import { Button } from '@/components/ui/button/button';
-import { Sparkles, ArrowRight } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import React from "react";
+import { motion } from "framer-motion";
+import { Button } from "@/components/ui/button/button";
+import { Sparkles, ArrowRight } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 /**
  * CTA (Call-to-Action) 组件
- * 
+ *
  * 引导用户开始使用
  */
 export const CTASection: React.FC = () => {
   const router = useRouter();
 
   const handleStartChat = () => {
-    router.push('/notion-ai');
+    router.push("/notion-ai");
   };
 
   return (
     <section className="relative py-32 px-6 overflow-hidden">
       {/* 背景渐变 */}
       <div className="absolute inset-0 bg-gradient-to-br from-[var(--interactive-primary)]/20 via-transparent to-[var(--interactive-primary)]/10" />
-      
+
       {/* 装饰性背景图案 */}
       <div className="absolute inset-0 opacity-5">
         <div className="absolute top-20 left-10 w-72 h-72 bg-[var(--interactive-primary)] rounded-full blur-3xl" />
@@ -44,15 +44,11 @@ export const CTASection: React.FC = () => {
           {/* 描述 */}
           <p className="text-xl text-[var(--text-secondary)] mb-10 max-w-2xl mx-auto leading-relaxed">
             立即体验 Ivan HappyWoods 的智能对话功能，
-            <br className="hidden md:block" />
-            让 AI 成为你的得力助手。
+            <br className="hidden md:block" />让 AI 成为你的得力助手。
           </p>
 
           {/* CTA 按钮 */}
-          <motion.div
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-          >
+          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
             <Button
               variant="primary"
               size="large"
@@ -80,5 +76,3 @@ export const CTASection: React.FC = () => {
     </section>
   );
 };
-
-

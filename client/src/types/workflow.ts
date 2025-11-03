@@ -1,6 +1,6 @@
 /**
  * 工作流执行状态类型定义
- * 
+ *
  * 用于实时展示 AI 思考和执行过程
  */
 
@@ -9,13 +9,13 @@
 // ============================================================
 
 /** 事件级别 */
-export type EventLevel = 'graph' | 'node';
+export type EventLevel = "graph" | "node";
 
 /** 节点状态 */
-export type NodeStatus = 'pending' | 'running' | 'completed' | 'error';
+export type NodeStatus = "pending" | "running" | "completed" | "error";
 
 /** 工具状态 */
-export type ToolStatus = 'pending' | 'executing' | 'success' | 'failed';
+export type ToolStatus = "pending" | "executing" | "success" | "failed";
 
 // ============================================================
 // Graph 层事件（调度级别）
@@ -23,8 +23,8 @@ export type ToolStatus = 'pending' | 'executing' | 'success' | 'failed';
 
 /** 工作流开始事件 */
 export interface WorkflowStartedEvent {
-  type: 'workflow_started';
-  level: 'graph';
+  type: "workflow_started";
+  level: "graph";
   timestamp: number;
   data: {
     workflow_name: string;
@@ -33,8 +33,8 @@ export interface WorkflowStartedEvent {
 
 /** 节点开始事件 */
 export interface NodeStartedEvent {
-  type: 'node_started';
-  level: 'graph';
+  type: "node_started";
+  level: "graph";
   timestamp: number;
   data: {
     node: string;
@@ -44,8 +44,8 @@ export interface NodeStartedEvent {
 
 /** 节点完成事件 */
 export interface NodeFinishedEvent {
-  type: 'node_finished';
-  level: 'graph';
+  type: "node_finished";
+  level: "graph";
   timestamp: number;
   data: {
     node: string;
@@ -56,8 +56,8 @@ export interface NodeFinishedEvent {
 
 /** 路由决策事件 */
 export interface RouteDecisionEvent {
-  type: 'route_decision';
-  level: 'graph';
+  type: "route_decision";
+  level: "graph";
   timestamp: number;
   data: {
     from: string;
@@ -68,12 +68,12 @@ export interface RouteDecisionEvent {
 
 /** 工作流完成事件 */
 export interface WorkflowCompleteEvent {
-  type: 'workflow_complete';
-  level: 'graph';
+  type: "workflow_complete";
+  level: "graph";
   timestamp: number;
   data: {
     total_duration_ms: number;
-    status: 'success' | 'error';
+    status: "success" | "error";
   };
 }
 
@@ -83,8 +83,8 @@ export interface WorkflowCompleteEvent {
 
 /** 思考阶段事件 */
 export interface ThinkingPhaseEvent {
-  type: 'thinking_phase';
-  level: 'node';
+  type: "thinking_phase";
+  level: "node";
   timestamp: number;
   data: {
     phase: string;
@@ -94,8 +94,8 @@ export interface ThinkingPhaseEvent {
 
 /** 工具调用排队事件 */
 export interface ToolCallPendingEvent {
-  type: 'tool_call_pending';
-  level: 'node';
+  type: "tool_call_pending";
+  level: "node";
   timestamp: number;
   data: {
     tool: string;
@@ -105,8 +105,8 @@ export interface ToolCallPendingEvent {
 
 /** 工具执行中事件 */
 export interface ToolExecutingEvent {
-  type: 'tool_executing';
-  level: 'node';
+  type: "tool_executing";
+  level: "node";
   timestamp: number;
   data: {
     tool: string;
@@ -115,8 +115,8 @@ export interface ToolExecutingEvent {
 
 /** 工具结果事件 */
 export interface ToolResultEvent {
-  type: 'tool_result';
-  level: 'node';
+  type: "tool_result";
+  level: "node";
   timestamp: number;
   data: {
     tool: string;
@@ -128,8 +128,8 @@ export interface ToolResultEvent {
 
 /** LLM 流式输出事件 */
 export interface LLMStreamingEvent {
-  type: 'llm_streaming';
-  level: 'node';
+  type: "llm_streaming";
+  level: "node";
   timestamp: number;
   data: {
     phase: string;
@@ -143,14 +143,14 @@ export interface LLMStreamingEvent {
 
 /** 内容增量事件 */
 export interface DeltaEvent {
-  type: 'delta';
+  type: "delta";
   content: string;
   timestamp?: number;
 }
 
 /** 工具调用事件 */
 export interface ToolCallsEvent {
-  type: 'tool_calls';
+  type: "tool_calls";
   tool_calls: Array<{
     id: string;
     type: string;
@@ -164,7 +164,7 @@ export interface ToolCallsEvent {
 
 /** 错误事件 */
 export interface ErrorEvent {
-  type: 'error';
+  type: "error";
   error: string;
   timestamp?: number;
 }
@@ -193,11 +193,7 @@ export type NodeEvent =
 export type WorkflowEvent = GraphEvent | NodeEvent;
 
 /** 所有 SSE 事件 */
-export type SSEEvent = 
-  | WorkflowEvent 
-  | DeltaEvent 
-  | ToolCallsEvent 
-  | ErrorEvent;
+export type SSEEvent = WorkflowEvent | DeltaEvent | ToolCallsEvent | ErrorEvent;
 
 // ============================================================
 // 状态模型
@@ -263,7 +259,7 @@ export interface WorkflowState {
   /** 是否完成 */
   isComplete: boolean;
   /** 执行状态 */
-  status?: 'success' | 'error';
+  status?: "success" | "error";
 }
 
 // ============================================================

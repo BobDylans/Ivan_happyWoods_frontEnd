@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback } from "react";
 
 export interface UseStreamingTextOptions {
   /** 打字速度（毫秒/字符） */
@@ -30,13 +30,13 @@ export interface UseStreamingTextReturn {
 
 /**
  * 流式打字机动画 Hook
- * 
+ *
  * 支持：
  * - 可配置的打字速度
  * - 暂停/继续/跳过
  * - 支持 prefers-reduced-motion
  * - 性能优化（requestAnimationFrame）
- * 
+ *
  * @example
  * ```tsx
  * const { displayedText, isTyping } = useStreamingText({
@@ -49,24 +49,19 @@ export function useStreamingText(
   text: string,
   options: UseStreamingTextOptions = {}
 ): UseStreamingTextReturn {
-  const {
-    speed = 30,
-    autoStart = true,
-    onComplete,
-    enabled = true,
-  } = options;
+  const { speed = 30, autoStart = true, onComplete, enabled = true } = options;
 
-  const [displayedText, setDisplayedText] = useState('');
+  const [displayedText, setDisplayedText] = useState("");
   const [isTyping, setIsTyping] = useState(false);
   const [isComplete, setIsComplete] = useState(false);
-  
+
   const indexRef = useRef(0);
   const animationFrameRef = useRef<number | null>(null);
   const lastUpdateRef = useRef<number>(0);
   const isPausedRef = useRef(false);
 
   // 检查是否启用动画
-  const shouldAnimate = enabled && !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const shouldAnimate = enabled && !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   const cleanup = useCallback(() => {
     if (animationFrameRef.current !== null) {
@@ -75,35 +70,39 @@ export function useStreamingText(
     }
   }, []);
 
-  const typeNextChar = useCallback((timestamp: number) => {
-    if (isPausedRef.current) return;
+  // eslint-disable-next-line react-hooks/immutability
+  const typeNextChar = useCallback(
+    (timestamp: number) => {
+      if (isPausedRef.current) return;
 
-    // 节流控制
-    if (timestamp - lastUpdateRef.current < speed) {
-      animationFrameRef.current = requestAnimationFrame(typeNextChar);
-      return;
-    }
+      // 节流控制
+      if (timestamp - lastUpdateRef.current < speed) {
+        animationFrameRef.current = requestAnimationFrame(typeNextChar);
+        return;
+      }
 
-    lastUpdateRef.current = timestamp;
+      lastUpdateRef.current = timestamp;
 
-    if (indexRef.current < text.length) {
-      indexRef.current++;
-      setDisplayedText(text.slice(0, indexRef.current));
-      animationFrameRef.current = requestAnimationFrame(typeNextChar);
-    } else {
-      setIsTyping(false);
-      setIsComplete(true);
-      onComplete?.();
-      cleanup();
-    }
-  }, [text, speed, onComplete, cleanup]);
+      if (indexRef.current < text.length) {
+        indexRef.current++;
+        setDisplayedText(text.slice(0, indexRef.current));
+        animationFrameRef.current = requestAnimationFrame(typeNextChar);
+      } else {
+        setIsTyping(false);
+        setIsComplete(true);
+        onComplete?.();
+        cleanup();
+      }
+    },
+    [text, speed, onComplete, cleanup]
+  );
 
   const start = useCallback(() => {
     if (isComplete) return;
-    
+
     isPausedRef.current = false;
     setIsTyping(true);
-    
+
     if (shouldAnimate) {
       lastUpdateRef.current = performance.now();
       animationFrameRef.current = requestAnimationFrame(typeNextChar);
@@ -134,7 +133,7 @@ export function useStreamingText(
 
   const reset = useCallback(() => {
     indexRef.current = 0;
-    setDisplayedText('');
+    setDisplayedText("");
     setIsTyping(false);
     setIsComplete(false);
     isPausedRef.current = false;
@@ -156,6 +155,7 @@ export function useStreamingText(
     if (autoStart) {
       start();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [text]); // 仅依赖 text
 
   return {
@@ -168,4 +168,3 @@ export function useStreamingText(
     reset,
   };
 }
-

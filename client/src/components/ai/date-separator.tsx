@@ -1,7 +1,7 @@
 "use client";
 
-import React from 'react';
-import { motion } from 'framer-motion';
+import React from "react";
+import { motion } from "framer-motion";
 
 interface DateSeparatorProps {
   date: Date;
@@ -10,20 +10,20 @@ interface DateSeparatorProps {
 
 /**
  * 日期分隔符组件
- * 
+ *
  * 在对话开头显示日期和会话信息
  */
-export const DateSeparator: React.FC<DateSeparatorProps> = ({ 
-  date, 
-  sessionTitle = "HappyWoods AI" 
+export const DateSeparator: React.FC<DateSeparatorProps> = ({
+  date,
+  sessionTitle = "HappyWoods AI",
 }) => {
   // 格式化日期：10月20日星期一
   const formatDate = (date: Date) => {
     const month = date.getMonth() + 1;
     const day = date.getDate();
-    const weekdays = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'];
+    const weekdays = ["星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"];
     const weekday = weekdays[date.getDay()];
-    
+
     return `${month}月${day}日${weekday}`;
   };
 

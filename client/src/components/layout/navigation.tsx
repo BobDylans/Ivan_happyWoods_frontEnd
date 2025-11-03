@@ -1,16 +1,16 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { Logo } from '@/components/icons/logo';
-import { Menu, X, Home, MessageSquare, Leaf, ChevronDown } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import React, { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { HappyWoodsLogoIcon } from "@/components/icons/happy-woods-logo";
+import { Menu, X, Home, MessageSquare, Leaf, ChevronDown } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 /**
  * 全局导航栏组件
- * 
+ *
  * 特性：
  * - 固定顶部
  * - 滚动时自动隐藏
@@ -27,14 +27,14 @@ export const Navigation: React.FC = () => {
   const [showToggleButton, setShowToggleButton] = useState(false);
 
   const navItems = [
-    { href: '/', label: '首页', icon: Home },
-    { href: '/notion-ai', label: 'AI 对话', icon: MessageSquare },
-    { href: '/typography', label: '设计系统', icon: Leaf },
+    { href: "/", label: "首页", icon: Home },
+    { href: "/notion-ai", label: "AI 对话", icon: MessageSquare },
+    { href: "/typography", label: "设计系统", icon: Leaf },
   ];
 
   const isActive = (href: string) => {
-    if (href === '/') {
-      return pathname === '/';
+    if (href === "/") {
+      return pathname === "/";
     }
     return pathname?.startsWith(href);
   };
@@ -48,7 +48,7 @@ export const Navigation: React.FC = () => {
       if (currentScrollY > 100 && currentScrollY > lastScrollY) {
         setIsVisible(false);
         setShowToggleButton(true);
-      } 
+      }
       // 向上滚动或回到顶部时显示导航栏
       else if (currentScrollY < lastScrollY || currentScrollY < 50) {
         setIsVisible(true);
@@ -58,15 +58,15 @@ export const Navigation: React.FC = () => {
       setLastScrollY(currentScrollY);
     };
 
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
   }, [lastScrollY]);
 
   // 手动显示导航栏
   const handleShowNav = () => {
     setIsVisible(true);
     setShowToggleButton(false);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   return (
@@ -81,13 +81,20 @@ export const Navigation: React.FC = () => {
         <div className="w-full px-4 py-4">
           <div className="flex items-center justify-between">
             {/* Logo */}
-            <Link href="/" className="flex items-center gap-2 group">
-              <Logo size="sm" />
+            <Link href="/" className="flex items-center gap-3 group">
+              <HappyWoodsLogoIcon
+                size={32}
+                className="transition-transform group-hover:scale-110"
+              />
+              <div className="hidden sm:block">
+                <div className="font-semibold text-[var(--text-primary)] text-sm">HappyWoods</div>
+                <div className="text-xs text-[var(--text-secondary)]">AI 助手</div>
+              </div>
             </Link>
 
             {/* 桌面端菜单 */}
             <div className="hidden md:flex items-center gap-1 ml-auto">
-              {navItems.map((item) => {
+              {navItems.map(item => {
                 const Icon = item.icon;
                 const active = isActive(item.href);
                 return (
@@ -163,15 +170,11 @@ export const Navigation: React.FC = () => {
               transition={{ type: "spring", stiffness: 300, damping: 30 }}
             >
               <div className="p-4 space-y-2">
-                {navItems.map((item) => {
+                {navItems.map(item => {
                   const Icon = item.icon;
                   const active = isActive(item.href);
                   return (
-                    <Link
-                      key={item.href}
-                      href={item.href}
-                      onClick={() => setMobileMenuOpen(false)}
-                    >
+                    <Link key={item.href} href={item.href} onClick={() => setMobileMenuOpen(false)}>
                       <motion.div
                         className={cn(
                           "flex items-center gap-3 px-4 py-3 rounded-lg transition-colors",
@@ -205,7 +208,7 @@ export const Navigation: React.FC = () => {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.3 }}
-            style={{ transform: 'translateX(-50%)' }}
+            style={{ transform: "translateX(-50%)" }}
           >
             <motion.button
               onClick={handleShowNav}
@@ -227,4 +230,3 @@ export const Navigation: React.FC = () => {
     </>
   );
 };
-

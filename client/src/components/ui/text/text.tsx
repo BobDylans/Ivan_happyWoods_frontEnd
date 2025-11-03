@@ -35,7 +35,7 @@ export interface TextProps
  * Primary text component for body copy
  * Supports multiple sizes and semantic color variants
  * Line height: 1.6 for comfortable reading
- * 
+ *
  * @example
  * <Text variant="body">Default body text</Text>
  * <Text variant="body-sm" weight="medium">Small medium text</Text>

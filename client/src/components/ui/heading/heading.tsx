@@ -36,7 +36,7 @@ export interface HeadingProps
  * Semantic heading component with proper hierarchy
  * Uses DM Sans font family for display text
  * Responsive font sizes across breakpoints
- * 
+ *
  * @example
  * <Heading level="h1">Page Title</Heading>
  * <Heading level="h2" weight="bold">Section Title</Heading>

@@ -17,11 +17,11 @@
 }
 
 .markdown-content code {
-  font-family: 'Courier New', Courier, monospace;
+  font-family: "Courier New", Courier, monospace;
 }
 
 .markdown-content pre {
-  font-family: 'Courier New', Courier, monospace;
+  font-family: "Courier New", Courier, monospace;
 }
 
 .markdown-content a {
@@ -33,96 +33,121 @@
   opacity: 0.8;
 }
 
+/* 图片预览样式优化 */
+.markdown-content [data-rmiz-wrap="visible"],
+.markdown-content [data-rmiz-wrap="hidden"] {
+  display: block;
+  margin: 1rem 0;
+}
+
+/* 表格响应式优化 */
+.markdown-content table {
+  display: table;
+  width: 100%;
+}
+
+/* 任务列表样式 */
+.markdown-content input[type="checkbox"] {
+  margin-right: 0.5rem;
+  cursor: default;
+  pointer-events: none;
+}
+
+/* 折叠动画 */
+.markdown-content .collapsible {
+  transition: max-height 0.3s ease-in-out;
+}
+
 /* Ivan_HappyWoods Design System - Design Tokens */
 :root {
   /* Primitive Tokens - Colors */
-  --color-neutral-0: #FFFFFF;
-  --color-neutral-50: #FDFCF9;
-  --color-neutral-100: #F5F3EF;
-  --color-neutral-200: #E8E5DD;
-  --color-neutral-300: #C9C5B8;
+  --color-neutral-0: #ffffff;
+  --color-neutral-50: #fdfcf9;
+  --color-neutral-100: #f5f3ef;
+  --color-neutral-200: #e8e5dd;
+  --color-neutral-300: #c9c5b8;
   --color-neutral-700: #656259;
-  --color-neutral-800: #3A3833;
-  --color-neutral-900: #1A1916;
-  
-  --color-amber-400: #F5C563;
-  --color-amber-500: #E4B16B;
-  --color-sage-500: #9CAF88;
-  --color-coral-400: #E89B7D;
-  --color-green-500: #7FA06C;
-  
+  --color-neutral-800: #3a3833;
+  --color-neutral-900: #1a1916;
+
+  --color-amber-400: #f5c563;
+  --color-amber-500: #e4b16b;
+  --color-sage-500: #9caf88;
+  --color-coral-400: #e89b7d;
+  --color-green-500: #7fa06c;
+
   /* Primitive Tokens - Spacing (4px baseline grid) */
   --spacing-0: 0;
-  --spacing-1: 0.25rem;    /* 4px */
-  --spacing-2: 0.5rem;     /* 8px */
-  --spacing-3: 0.75rem;    /* 12px */
-  --spacing-4: 1rem;       /* 16px */
-  --spacing-5: 1.25rem;    /* 20px */
-  --spacing-6: 1.5rem;     /* 24px */
-  --spacing-8: 2rem;       /* 32px */
-  --spacing-10: 2.5rem;    /* 40px */
-  --spacing-12: 3rem;      /* 48px */
-  --spacing-16: 4rem;      /* 64px */
-  
+  --spacing-1: 0.25rem; /* 4px */
+  --spacing-2: 0.5rem; /* 8px */
+  --spacing-3: 0.75rem; /* 12px */
+  --spacing-4: 1rem; /* 16px */
+  --spacing-5: 1.25rem; /* 20px */
+  --spacing-6: 1.5rem; /* 24px */
+  --spacing-8: 2rem; /* 32px */
+  --spacing-10: 2.5rem; /* 40px */
+  --spacing-12: 3rem; /* 48px */
+  --spacing-16: 4rem; /* 64px */
+
   /* Primitive Tokens - Border Radius */
   --radius-none: 0;
-  --radius-sm: 0.25rem;    /* 4px */
-  --radius-md: 0.5rem;     /* 8px */
-  --radius-lg: 0.75rem;    /* 12px */
-  --radius-xl: 1rem;       /* 16px */
+  --radius-sm: 0.25rem; /* 4px */
+  --radius-md: 0.5rem; /* 8px */
+  --radius-lg: 0.75rem; /* 12px */
+  --radius-xl: 1rem; /* 16px */
   --radius-full: 9999px;
-  
+
   /* Primitive Tokens - Box Shadows */
   --shadow-sm: 0 1px 2px rgba(26, 25, 22, 0.05);
   --shadow-md: 0 2px 4px rgba(26, 25, 22, 0.08);
   --shadow-lg: 0 4px 8px rgba(26, 25, 22, 0.12);
   --shadow-xl: 0 8px 16px rgba(26, 25, 22, 0.16);
-  
+
   /* Semantic Tokens - Surface */
   --surface-base: var(--color-neutral-50);
   --surface-elevated: var(--color-neutral-0);
   --surface-overlay: var(--color-neutral-0);
-  
+
   /* Semantic Tokens - Text */
   --text-primary: var(--color-neutral-900);
   --text-secondary: var(--color-neutral-700);
   --text-tertiary: var(--color-neutral-300);
   --text-inverse: var(--color-neutral-0);
-  
+
   /* Semantic Tokens - Interactive */
   --interactive-primary: var(--color-amber-500);
   --interactive-primary-hover: var(--color-amber-400);
   --interactive-secondary: var(--color-sage-500);
   --interactive-secondary-hover: var(--color-neutral-200);
-  
+
   /* Semantic Tokens - Border */
   --border-subtle: var(--color-neutral-200);
   --border-default: var(--color-neutral-300);
   --border-emphasis: var(--color-amber-500);
-  
+
   /* Semantic Tokens - Status */
   --status-success: var(--color-green-500);
   --status-warning: var(--color-amber-500);
   --status-error: var(--color-coral-400);
   --status-info: var(--color-sage-500);
-  
+
   /* Animation Tokens */
   --duration-fast: 150ms;
   --duration-normal: 250ms;
   --duration-slow: 350ms;
-  
-  --easing-smooth: cubic-bezier(0.4, 0.0, 0.2, 1);
+
+  --easing-smooth: cubic-bezier(0.4, 0, 0.2, 1);
   --easing-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
-  
+
   /* Notion AI 渐变色 (Light Mode) */
   --ai-gradient-start: #f6f4ff;
   --ai-gradient-mid: #e8f0fe;
   --ai-gradient-end: #f0f9ff;
-  
+
   /* AI 消息气泡 (Light Mode) */
   --ai-message-bg: rgba(255, 255, 255, 0.8);
   --ai-message-border: rgba(0, 0, 0, 0.08);
-  
+
   /* AI 加载动画色 */
   --ai-pulse-color: #8b5cf6;
 }
@@ -131,64 +156,64 @@
 .dark {
   /* Primitive Tokens - Dark Colors */
   --color-neutral-0: #121212;
-  --color-neutral-50: #1A1916;
+  --color-neutral-50: #1a1916;
   --color-neutral-100: #252320;
-  --color-neutral-200: #3A3833;
+  --color-neutral-200: #3a3833;
   --color-neutral-300: #525047;
-  --color-neutral-700: #B8B5AD;
-  --color-neutral-800: #D4D1C9;
-  --color-neutral-900: #EEECEA;
-  
+  --color-neutral-700: #b8b5ad;
+  --color-neutral-800: #d4d1c9;
+  --color-neutral-900: #eeecea;
+
   /* 主题色保持一致，确保品牌识别 */
-  --color-amber-400: #F5C563;
-  --color-amber-500: #E4B16B;
-  --color-sage-500: #9CAF88;
-  --color-coral-400: #E89B7D;
-  --color-green-500: #7FA06C;
-  
+  --color-amber-400: #f5c563;
+  --color-amber-500: #e4b16b;
+  --color-sage-500: #9caf88;
+  --color-coral-400: #e89b7d;
+  --color-green-500: #7fa06c;
+
   /* Dark Mode Shadows */
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.5);
   --shadow-md: 0 2px 4px rgba(0, 0, 0, 0.6);
   --shadow-lg: 0 4px 8px rgba(0, 0, 0, 0.7);
   --shadow-xl: 0 8px 16px rgba(0, 0, 0, 0.8);
-  
+
   /* Semantic Tokens - Dark Surface */
   --surface-base: var(--color-neutral-50);
   --surface-elevated: var(--color-neutral-100);
   --surface-overlay: var(--color-neutral-200);
-  
+
   /* Semantic Tokens - Dark Text */
   --text-primary: var(--color-neutral-900);
   --text-secondary: var(--color-neutral-700);
   --text-tertiary: var(--color-neutral-300);
   --text-inverse: var(--color-neutral-50);
-  
+
   /* Interactive colors remain warm and accessible in dark mode */
   --interactive-primary: var(--color-amber-500);
   --interactive-primary-hover: var(--color-amber-400);
   --interactive-secondary: var(--color-sage-500);
   --interactive-secondary-hover: var(--color-neutral-300);
-  
+
   /* Dark Mode Borders - more subtle */
   --border-subtle: var(--color-neutral-200);
   --border-default: var(--color-neutral-300);
   --border-emphasis: var(--color-amber-500);
-  
+
   /* Status colors - adjusted for dark mode */
   --status-success: var(--color-green-500);
   --status-warning: var(--color-amber-500);
   --status-error: var(--color-coral-400);
   --status-info: var(--color-sage-500);
-  
+
   /* Notion AI 渐变色 (Dark Mode) */
   --ai-gradient-start: #1a1625;
   --ai-gradient-mid: #1e1a2e;
   --ai-gradient-end: #1a1f2e;
-  
+
   /* AI 消息气泡 (Dark Mode) */
   --ai-message-bg: rgba(40, 40, 50, 0.8);
   --ai-message-border: rgba(255, 255, 255, 0.1);
-  
+
   /* AI 加载动画色 */
   --ai-pulse-color: #a78bfa;
 }
@@ -204,17 +229,17 @@
   --color-border-subtle: var(--border-subtle);
   --color-status-success: var(--status-success);
   --color-status-error: var(--status-error);
-  
+
   /* Spacing Mappings */
   --spacing-section: var(--spacing-8);
   --spacing-card: var(--spacing-4);
   --spacing-input: var(--spacing-3);
-  
+
   /* Border Radius Mappings */
   --radius-button: var(--radius-md);
   --radius-input: var(--radius-md);
   --radius-card: var(--radius-lg);
-  
+
   /* Font Families (will be updated with Inter/DM Sans) */
   --font-sans: var(--font-inter);
   --font-display: var(--font-dm-sans);

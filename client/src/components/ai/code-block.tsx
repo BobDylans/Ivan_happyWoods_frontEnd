@@ -1,9 +1,9 @@
 "use client";
 
-import React, { useState } from 'react';
-import { Check, Copy } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { cn } from '@/lib/utils';
+import React, { useState } from "react";
+import { Check, Copy } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { cn } from "@/lib/utils";
 
 interface CodeBlockProps {
   children: string;
@@ -13,23 +13,19 @@ interface CodeBlockProps {
 
 /**
  * 代码块组件 - 带复制功能
- * 
+ *
  * 特性：
  * - 一键复制代码
  * - 复制成功提示
  * - 语言标签显示
  * - 语法高亮样式支持
  */
-export const CodeBlock: React.FC<CodeBlockProps> = ({
-  children,
-  className,
-  inline = false,
-}) => {
+export const CodeBlock: React.FC<CodeBlockProps> = ({ children, className, inline = false }) => {
   const [copied, setCopied] = useState(false);
 
   // 提取语言类型
-  const match = /language-(\w+)/.exec(className || '');
-  const language = match ? match[1] : 'text';
+  const match = /language-(\w+)/.exec(className || "");
+  const language = match ? match[1] : "text";
 
   // 复制功能
   const handleCopy = async () => {
@@ -38,16 +34,14 @@ export const CodeBlock: React.FC<CodeBlockProps> = ({
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch (err) {
-      console.error('复制失败:', err);
+      console.error("复制失败:", err);
     }
   };
 
   // 行内代码
   if (inline) {
     return (
-      <code
-        className="px-1.5 py-0.5 rounded bg-[var(--interactive-primary)]/10 text-[var(--interactive-primary)] text-sm font-mono"
-      >
+      <code className="px-1.5 py-0.5 rounded bg-[var(--interactive-primary)]/10 text-[var(--interactive-primary)] text-sm font-mono">
         {children}
       </code>
     );
@@ -101,9 +95,7 @@ export const CodeBlock: React.FC<CodeBlockProps> = ({
                 className="flex items-center gap-1.5"
               >
                 <Copy className="w-3.5 h-3.5" />
-                <span className="opacity-0 group-hover:opacity-100 transition-opacity">
-                  复制
-                </span>
+                <span className="opacity-0 group-hover:opacity-100 transition-opacity">复制</span>
               </motion.div>
             )}
           </AnimatePresence>
@@ -112,12 +104,7 @@ export const CodeBlock: React.FC<CodeBlockProps> = ({
 
       {/* 代码内容 */}
       <pre className="p-4 rounded-b-lg bg-[var(--surface-base)] border border-[var(--border-subtle)] overflow-x-auto">
-        <code
-          className={cn(
-            "text-sm font-mono block text-[var(--text-primary)]",
-            className
-          )}
-        >
+        <code className={cn("text-sm font-mono block text-[var(--text-primary)]", className)}>
           {children}
         </code>
       </pre>

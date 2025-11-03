@@ -1,10 +1,11 @@
 "use client";
 
-import React, { Component, ReactNode } from 'react';
-import { motion } from 'framer-motion';
-import { AlertTriangle, RefreshCw, Home } from 'lucide-react';
-import { Button } from '@/components/ui/button/button';
-import Link from 'next/link';
+import React, { Component, ReactNode } from "react";
+import { motion } from "framer-motion";
+import { AlertTriangle, RefreshCw, Home } from "lucide-react";
+import { Button } from "@/components/ui/button/button";
+import { HappyWoodsLogo } from "@/components/icons/happy-woods-logo";
+import Link from "next/link";
 
 interface Props {
   children: ReactNode;
@@ -19,9 +20,9 @@ interface State {
 
 /**
  * 错误边界组件
- * 
+ *
  * 捕获子组件树中的 JavaScript 错误，显示友好的错误提示
- * 
+ *
  * @example
  * ```tsx
  * <ErrorBoundary>
@@ -45,8 +46,8 @@ export class ErrorBoundary extends Component<Props, State> {
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
     // 记录错误到控制台
-    console.error('错误边界捕获到错误:', error, errorInfo);
-    
+    console.error("错误边界捕获到错误:", error, errorInfo);
+
     this.setState({
       error,
       errorInfo,
@@ -81,6 +82,11 @@ export class ErrorBoundary extends Component<Props, State> {
             className="max-w-md w-full"
           >
             <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl p-8 border border-[var(--border-subtle)]">
+              {/* Logo */}
+              <div className="flex justify-center mb-4">
+                <HappyWoodsLogo size="sm" animated={false} />
+              </div>
+
               {/* 错误图标 */}
               <div className="flex justify-center mb-6">
                 <div className="w-16 h-16 rounded-full bg-[var(--status-error)]/10 flex items-center justify-center">
@@ -99,7 +105,7 @@ export class ErrorBoundary extends Component<Props, State> {
               </p>
 
               {/* 错误详情（开发环境显示） */}
-              {process.env.NODE_ENV === 'development' && this.state.error && (
+              {process.env.NODE_ENV === "development" && this.state.error && (
                 <details className="mb-6 p-4 bg-[var(--surface-elevated)] rounded-lg border border-[var(--border-default)]">
                   <summary className="cursor-pointer text-sm font-medium text-[var(--text-secondary)] mb-2">
                     查看错误详情
@@ -117,21 +123,12 @@ export class ErrorBoundary extends Component<Props, State> {
 
               {/* 操作按钮 */}
               <div className="flex flex-col sm:flex-row gap-3">
-                <Button
-                  variant="primary"
-                  size="lg"
-                  onClick={this.handleReset}
-                  className="flex-1"
-                >
+                <Button variant="primary" size="lg" onClick={this.handleReset} className="flex-1">
                   <RefreshCw className="w-4 h-4 mr-2" />
                   重新加载
                 </Button>
                 <Link href="/" className="flex-1">
-                  <Button
-                    variant="secondary"
-                    size="lg"
-                    className="w-full"
-                  >
+                  <Button variant="secondary" size="lg" className="w-full">
                     <Home className="w-4 h-4 mr-2" />
                     返回首页
                   </Button>
@@ -160,7 +157,7 @@ export function useErrorHandler() {
   const [error, setError] = React.useState<Error | null>(null);
 
   const handleError = React.useCallback((error: Error) => {
-    console.error('捕获到错误:', error);
+    console.error("捕获到错误:", error);
     setError(error);
   }, []);
 

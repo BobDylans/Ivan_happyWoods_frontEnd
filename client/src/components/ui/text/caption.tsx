@@ -30,7 +30,7 @@ export interface CaptionProps
  * Caption Component
  * Small text for labels, hints, and supplementary information
  * Always uses secondary text color for visual hierarchy
- * 
+ *
  * @example
  * <Caption>Last updated 2 hours ago</Caption>
  * <Caption size="xs">Metadata information</Caption>

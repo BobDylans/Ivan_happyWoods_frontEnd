@@ -1,10 +1,10 @@
 "use client";
 
-import React from 'react';
-import { motion } from 'framer-motion';
-import { useStreamingText } from '@/hooks/use-streaming-text';
-import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
+import React from "react";
+import { motion } from "framer-motion";
+import { useStreamingText } from "@/hooks/use-streaming-text";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 export interface StreamingTextProps {
   /** 要显示的文本内容 */
@@ -25,20 +25,20 @@ export interface StreamingTextProps {
 
 /**
  * StreamingText 组件
- * 
+ *
  * Notion AI 风格的打字机动画文本组件
- * 
+ *
  * 特性：
  * - 流畅的打字机动画（60fps）
  * - 支持 Markdown 实时渲染
  * - 可配置的打字速度
  * - 闪烁光标效果
  * - 支持 prefers-reduced-motion
- * 
+ *
  * @example
  * ```tsx
- * <StreamingText 
- *   text="Hello, **World**!" 
+ * <StreamingText
+ *   text="Hello, **World**!"
  *   speed={30}
  *   markdown={true}
  * />
@@ -50,7 +50,7 @@ export function StreamingText({
   autoStart = true,
   markdown = true,
   onComplete,
-  className = '',
+  className = "",
   showCursor = true,
 }: StreamingTextProps) {
   const { displayedText, isTyping } = useStreamingText(text, {
@@ -67,9 +67,7 @@ export function StreamingText({
             remarkPlugins={[remarkGfm]}
             components={{
               // 自定义 Markdown 渲染样式
-              p: ({ children }) => (
-                <p className="mb-2 last:mb-0 leading-relaxed">{children}</p>
-              ),
+              p: ({ children }) => <p className="mb-2 last:mb-0 leading-relaxed">{children}</p>,
               code: ({ inline, children, ...props }: any) =>
                 inline ? (
                   <code
@@ -87,9 +85,7 @@ export function StreamingText({
                   </code>
                 ),
               strong: ({ children }) => (
-                <strong className="font-semibold text-[var(--text-primary)]">
-                  {children}
-                </strong>
+                <strong className="font-semibold text-[var(--text-primary)]">{children}</strong>
               ),
               em: ({ children }) => (
                 <em className="italic text-[var(--text-secondary)]">{children}</em>
@@ -116,11 +112,9 @@ export function StreamingText({
           </ReactMarkdown>
         </div>
       ) : (
-        <span className="whitespace-pre-wrap leading-relaxed">
-          {displayedText}
-        </span>
+        <span className="whitespace-pre-wrap leading-relaxed">{displayedText}</span>
       )}
-      
+
       {/* 打字光标 */}
       {showCursor && isTyping && (
         <motion.span
@@ -141,15 +135,15 @@ export function StreamingText({
 
 /**
  * StreamingCode 组件
- * 
+ *
  * 专门用于代码块的打字机动画
  */
 export function StreamingCode({
   code,
-  language = 'javascript',
+  language = "javascript",
   speed = 20,
   onComplete,
-  className = '',
+  className = "",
 }: {
   code: string;
   language?: string;
@@ -166,11 +160,9 @@ export function StreamingCode({
   return (
     <div className={`relative ${className}`}>
       <pre className="p-4 rounded-lg bg-[var(--surface-elevated)] overflow-x-auto">
-        <code className="text-sm font-mono text-[var(--text-primary)]">
-          {displayedText}
-        </code>
+        <code className="text-sm font-mono text-[var(--text-primary)]">{displayedText}</code>
       </pre>
-      
+
       {isTyping && (
         <motion.div
           className="absolute bottom-4 right-4 w-2 h-2 rounded-full bg-[var(--interactive-primary)]"
@@ -187,4 +179,3 @@ export function StreamingCode({
     </div>
   );
 }
-

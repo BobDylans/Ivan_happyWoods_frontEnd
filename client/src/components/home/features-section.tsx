@@ -1,44 +1,44 @@
 "use client";
 
-import React from 'react';
-import { motion } from 'framer-motion';
-import { MessageSquare, Sparkles, Zap, Shield } from 'lucide-react';
-import { Card } from '@/components/ui/card/card';
+import React from "react";
+import { motion } from "framer-motion";
+import { MessageSquare, Sparkles, Zap, Shield } from "lucide-react";
+import { Card } from "@/components/ui/card/card";
 
 /**
  * 特性展示组件
- * 
+ *
  * 展示产品的核心特性
  */
 export const FeaturesSection: React.FC = () => {
   const features = [
     {
       icon: MessageSquare,
-      title: '智能对话',
-      description: '基于最新 AI 技术，提供自然流畅的对话体验，理解上下文，给出精准回复。',
-      color: 'text-[var(--interactive-primary)]',
-      bgColor: 'bg-[var(--interactive-primary)]/10',
+      title: "智能对话",
+      description: "基于最新 AI 技术，提供自然流畅的对话体验，理解上下文，给出精准回复。",
+      color: "text-[var(--interactive-primary)]",
+      bgColor: "bg-[var(--interactive-primary)]/10",
     },
     {
       icon: Sparkles,
-      title: '流式响应',
-      description: '实时流式输出，所见即所得。支持 Markdown 渲染和代码高亮，阅读体验更佳。',
-      color: 'text-amber-600',
-      bgColor: 'bg-amber-600/10',
+      title: "流式响应",
+      description: "实时流式输出，所见即所得。支持 Markdown 渲染和代码高亮，阅读体验更佳。",
+      color: "text-amber-600",
+      bgColor: "bg-amber-600/10",
     },
     {
       icon: Zap,
-      title: '快速高效',
-      description: '毫秒级响应速度，60fps 流畅动画。无论是简单问答还是复杂任务，都能快速完成。',
-      color: 'text-blue-600',
-      bgColor: 'bg-blue-600/10',
+      title: "快速高效",
+      description: "毫秒级响应速度，60fps 流畅动画。无论是简单问答还是复杂任务，都能快速完成。",
+      color: "text-blue-600",
+      bgColor: "bg-blue-600/10",
     },
     {
       icon: Shield,
-      title: '安全可靠',
-      description: '企业级安全保障，数据加密传输。支持会话管理，历史对话随时查看。',
-      color: 'text-green-600',
-      bgColor: 'bg-green-600/10',
+      title: "安全可靠",
+      description: "企业级安全保障，数据加密传输。支持会话管理，历史对话随时查看。",
+      color: "text-green-600",
+      bgColor: "bg-green-600/10",
     },
   ];
 
@@ -67,8 +67,8 @@ export const FeaturesSection: React.FC = () => {
   };
 
   return (
-    <section 
-      id="features" 
+    <section
+      id="features"
       className="py-24 px-6 bg-gradient-to-b from-[var(--surface-base)] to-[var(--surface-elevated)]"
     >
       <div className="max-w-7xl mx-auto">
@@ -99,16 +99,15 @@ export const FeaturesSection: React.FC = () => {
           {features.map((feature, index) => {
             const Icon = feature.icon;
             return (
-              <motion.div
-                key={index}
-                variants={itemVariants}
-              >
+              <motion.div key={index} variants={itemVariants}>
                 <Card
                   variant="hover"
                   className="h-full p-6 transition-all duration-300 hover:shadow-xl hover:-translate-y-2"
                 >
                   {/* 图标 */}
-                  <div className={`inline-flex items-center justify-center w-14 h-14 rounded-xl ${feature.bgColor} mb-4`}>
+                  <div
+                    className={`inline-flex items-center justify-center w-14 h-14 rounded-xl ${feature.bgColor} mb-4`}
+                  >
                     <Icon className={`w-7 h-7 ${feature.color}`} />
                   </div>
 
@@ -130,5 +129,3 @@ export const FeaturesSection: React.FC = () => {
     </section>
   );
 };
-
-

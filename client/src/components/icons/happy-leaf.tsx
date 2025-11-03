@@ -9,10 +9,7 @@ interface HappyLeafProps {
  * HappyLeaf Icon - Brand identity symbol
  * A rounded leaf with gentle curves representing warmth and nature
  */
-export const HappyLeaf: React.FC<HappyLeafProps> = ({ 
-  className = "", 
-  size = 24 
-}) => {
+export const HappyLeaf: React.FC<HappyLeafProps> = ({ className = "", size = 24 }) => {
   return (
     <svg
       width={size}
