@@ -329,6 +329,7 @@
                 <button class="btn btn-secondary" onclick="getUserSessions()">获取会话列表</button>
                 <button class="btn btn-secondary" onclick="getSessionDetail()">获取会话详情</button>
             </div>
+            <button class="btn" onclick="startNewSession()" style="margin-top: 10px;">➕ 新建会话</button>
             <div id="sessionResult"></div>
 
             <div class="divider"></div>
@@ -646,17 +647,17 @@
             }
 
             try {
-                const response = await fetch(`${getApiUrl()}/api/v1/chat/`, {
+                // 🔥 修复：使用正确的认证对话接口
+                const response = await fetch(`${getApiUrl()}/api/v1/conversation/send`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${accessToken}`  // 使用 JWT Token 而非 API Key
+                        'Authorization': `Bearer ${accessToken}`  // 使用 JWT Token
                     },
                     body: JSON.stringify({
-                        message: message,
-                        session_id: 'jwt_test_' + Date.now(),
-                        user_id: currentUser?.user_id || 'test_user',
-                        stream: false
+                        text: message,  // 修改字段名: message → text
+                        output_mode: 'text'  // 新增必填字段
+                        // 注意：不提供 session_id，让后端自动创建并绑定用户
                     })
                 });
 
@@ -665,9 +666,15 @@
                 if (response.ok) {
                     showResult('chatResult', {
                         success: true,
-                        response: data.response,
-                        metadata: data.metadata
+                        session_id: data.session_id,  // 显示自动创建的 session_id
+                        user_input: data.user_input,
+                        agent_response: data.agent_response.substring(0, 200) + '...',
+                        timestamp: data.timestamp
                     });
+                    
+                    // 保存 session_id 用于后续查看详情
+                    window.lastSessionId = data.session_id;
+                    console.log('Saved session_id from chat:', data.session_id);
                 } else {
                     if (response.status === 401) {
                         showResult('chatResult', {
@@ -834,6 +841,61 @@
             document.getElementById('refreshResult').innerHTML = '';
             document.getElementById('chatResult').innerHTML = '';
             document.getElementById('sessionResult').innerHTML = '';
+        }
+
+        // ============================================
+        // 新建会话
+        // ============================================
+        async function startNewSession() {
+            if (!accessToken) {
+                alert('请先登录！');
+                showResult('sessionResult', { error: '未登录' }, true);
+                return;
+            }
+
+            try {
+                // 调用新建会话接口
+                const response = await fetch(`${getApiUrl()}/api/v1/conversation/sessions/create`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${accessToken}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        title: `对话 ${new Date().toLocaleString('zh-CN')}`
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    // 保存新会话 ID
+                    window.lastSessionId = result.session_id;
+                    
+                    // 清空对话结果区域
+                    document.getElementById('chatResult').innerHTML = '';
+                    
+                    // 显示成功消息
+                    showResult('sessionResult', {
+                        success: true,
+                        message: result.message,
+                        session_id: result.session_id,
+                        title: result.title,
+                        created_at: result.created_at
+                    });
+                    
+                    // 滚动到对话输入框 (无动画)
+                    const chatSection = document.querySelector('h3:nth-of-type(3)'); // "测试对话接口" 标题
+                    if (chatSection) {
+                        chatSection.scrollIntoView({ behavior: 'auto', block: 'start' });
+                    }
+                } else {
+                    showResult('sessionResult', { error: result.message || '创建会话失败' }, true);
+                }
+            } catch (error) {
+                console.error('创建会话失败:', error);
+                showResult('sessionResult', { error: `创建会话失败: ${error.message}` }, true);
+            }
         }
     </script>
 </body>

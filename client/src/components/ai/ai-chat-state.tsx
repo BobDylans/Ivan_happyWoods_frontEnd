@@ -20,7 +20,6 @@ import {
   X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button/button";
-import { NotionSidebar } from "./notion-sidebar";
 import { AIThinking } from "./ai-thinking";
 import { MarkdownMessage } from "./markdown-message";
 import { DateSeparator } from "./date-separator";
@@ -51,7 +50,6 @@ interface AIChatStateProps {
   onEditMessage?: (messageId: string, newContent: string) => void;
   onRetryMessage?: (messageId: string) => void;
   isThinking?: boolean;
-  animated?: boolean; // 是否启用入场动画
 }
 
 /**
@@ -71,7 +69,6 @@ export const AIChatState: React.FC<AIChatStateProps> = ({
   onEditMessage,
   onRetryMessage,
   isThinking = false,
-  animated = false,
 }) => {
   const [input, setInput] = useState("");
   const [isComposing, setIsComposing] = useState(false);
@@ -348,9 +345,6 @@ export const AIChatState: React.FC<AIChatStateProps> = ({
 
   return (
     <div className="flex h-screen bg-[var(--surface-base)]">
-      {/* 左侧边栏 - 启用入场动画 */}
-      <NotionSidebar onNewChat={handleNewChat} currentChatId="current-chat" animated={animated} />
-
       {/* 主聊天区域 */}
       <div className="flex-1 flex flex-col">
         {/* 顶部标题栏 */}
@@ -397,6 +391,7 @@ export const AIChatState: React.FC<AIChatStateProps> = ({
         {/* 消息区域 */}
         <div
           ref={messagesContainerRef}
+          data-chat-container
           className="flex-1 overflow-y-auto relative"
           onScroll={handleScroll}
         >

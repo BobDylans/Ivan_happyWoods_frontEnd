@@ -27,7 +27,18 @@ export function getOrCreateSessionId(conversationId?: string): string {
 
   // 如果不存在，创建新的 session_id
   if (!sessionId) {
-    const userId = localStorage.getItem("user_id") || "web_user";
+    // 尝试从 user_info 获取 user_id
+    let userId = "web_user";
+    try {
+      const userInfoStr = localStorage.getItem("user_info");
+      if (userInfoStr) {
+        const userInfo = JSON.parse(userInfoStr);
+        userId = userInfo.user_id || userInfo.username || "web_user";
+      }
+    } catch (e) {
+      console.warn("解析用户信息失败:", e);
+    }
+
     sessionId = `${userId}_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
     localStorage.setItem(storageKey, sessionId);
   }
@@ -639,6 +650,63 @@ export async function getSessionDetail(sessionId: string): Promise<SessionDetail
     return await response.json();
   } catch (error) {
     console.error("获取会话详情错误:", error);
+    throw error;
+  }
+}
+
+/**
+ * 创建新会话响应类型
+ */
+export interface CreateSessionResponse {
+  success: boolean;
+  message: string;
+  session_id: string;
+  title: string;
+  created_at: string;
+}
+
+/**
+ * 创建新会话
+ * 需要 JWT Token 认证
+ */
+export async function createNewSession(title?: string): Promise<CreateSessionResponse> {
+  const token = getAuthToken();
+  if (!token) {
+    throw new Error("未登录，请先登录");
+  }
+
+  try {
+    const defaultTitle = `对话 ${new Date().toLocaleString("zh-CN")}`;
+
+    const response = await fetch(`${API_CONFIG.baseUrl}/api/v1/conversation/sessions/create`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        title: title || defaultTitle,
+      }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      if (response.status === 401) {
+        // Token 过期，尝试刷新
+        const refreshed = await refreshAuthToken();
+        if (refreshed) {
+          // 重试请求
+          return createNewSession(title);
+        }
+        throw new Error("认证失败，请重新登录");
+      }
+      throw new Error(data.message || data.detail || `HTTP ${response.status}`);
+    }
+
+    return data;
+  } catch (error) {
+    console.error("创建会话错误:", error);
     throw error;
   }
 }

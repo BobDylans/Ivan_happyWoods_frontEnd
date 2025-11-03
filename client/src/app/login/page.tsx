@@ -128,14 +128,17 @@ export default function LoginPage() {
     try {
       if (mode === "login") {
         // 登录 API 调用
-        const { login } = await import("@/lib/api-service");
+        const { login, getCurrentUser } = await import("@/lib/api-service");
         const result = await login({
           username: formData.username,
           password: formData.password,
         });
 
         if (result.success) {
-          // 登录成功，跳转到 AI 对话页面
+          // 登录成功后获取用户信息
+          await getCurrentUser();
+
+          // 跳转到 AI 对话页面
           router.push("/notion-ai");
         } else {
           // 显示错误消息

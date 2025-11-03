@@ -6,7 +6,7 @@ import { AIWelcomeState } from "./ai-welcome-state";
 import { AIChatState } from "./ai-chat-state";
 import { SessionHistory } from "./session-history";
 import { useSSEStream } from "@/hooks/use-sse-stream";
-import { getOrCreateSessionId, getSessionDetail, isAuthenticated } from "@/lib/api-service";
+import { getOrCreateSessionId, getSessionDetail, createNewSession } from "@/lib/api-service";
 import type { WorkflowEventData } from "./workflow-visual";
 
 // 状态管理接口
@@ -18,6 +18,7 @@ interface AIInterfaceState {
   isThinking: boolean;
   workflowEvents: Map<string, WorkflowEventData[]>; // 每条消息对应的工作流事件
   showHistory: boolean; // 是否显示会话历史
+  sessionListKey: number; // 用于触发会话列表刷新
 }
 
 interface Message {
@@ -58,13 +59,14 @@ export const NotionAIInterface: React.FC = () => {
     const loggedIn = typeof window !== "undefined" && !!localStorage.getItem("auth_token");
 
     return {
-      mode: "welcome",
+      mode: loggedIn ? "chat" : "welcome", // 登录用户直接进入对话界面
       messages: [],
       currentSession: persistedSessionId,
       isTransitioning: false,
       isThinking: false,
       workflowEvents: new Map(),
       showHistory: loggedIn, // 只有登录后才显示历史
+      sessionListKey: 0, // 初始化会话列表刷新key
     };
   });
 
@@ -357,23 +359,122 @@ export const NotionAIInterface: React.FC = () => {
     await handleMessage(userMessage.content);
   };
 
-  // 重置到欢迎状态
-  const handleReset = () => {
-    // 重置时创建新的 session_id
-    const newSessionId = getOrCreateSessionId("notion_ai_new");
+  // 创建新会话 - 调用后端接口创建会话
+  const handleReset = async () => {
     const loggedIn = typeof window !== "undefined" && !!localStorage.getItem("auth_token");
 
-    setState({
-      mode: "welcome",
-      messages: [],
-      currentSession: newSessionId,
-      isTransitioning: false,
-      isThinking: false,
-      workflowEvents: new Map(),
-      showHistory: loggedIn,
-    });
+    if (!loggedIn) {
+      // 未登录用户,使用客户端生成的 session_id
+      if (typeof window !== "undefined") {
+        localStorage.removeItem("chat_session_default");
+        localStorage.removeItem("notion_ai_session_id");
+      }
 
-    console.log("🔄 创建新会话:", newSessionId);
+      const newSessionId = getOrCreateSessionId("new_chat");
+
+      setState({
+        mode: "chat",
+        messages: [],
+        currentSession: newSessionId,
+        isTransitioning: false,
+        isThinking: false,
+        workflowEvents: new Map(),
+        showHistory: false,
+        sessionListKey: Date.now(), // 触发刷新
+      });
+
+      console.log("✨ 创建新会话(未登录):", newSessionId);
+      return;
+    }
+
+    // 已登录用户,调用后端接口创建会话
+    try {
+      const result = await createNewSession();
+
+      if (result.success) {
+        // 清除旧的 session_id 缓存
+        if (typeof window !== "undefined") {
+          localStorage.removeItem("chat_session_default");
+          localStorage.removeItem("notion_ai_session_id");
+        }
+
+        setState({
+          mode: "chat", // 直接进入对话模式
+          messages: [], // 空消息列表
+          currentSession: result.session_id, // 使用后端返回的 session_id
+          isTransitioning: false,
+          isThinking: false,
+          workflowEvents: new Map(),
+          showHistory: true,
+          sessionListKey: Date.now(), // 触发会话列表刷新
+        });
+
+        console.log("✨ 创建新会话成功:", {
+          session_id: result.session_id,
+          title: result.title,
+          created_at: result.created_at,
+        });
+      } else {
+        throw new Error(result.message || "创建会话失败");
+      }
+    } catch (error) {
+      console.error("❌ 创建会话失败:", error);
+      alert(error instanceof Error ? error.message : "创建会话失败，请重试");
+
+      // 失败时使用客户端生成的 session_id
+      const fallbackSessionId = getOrCreateSessionId("new_chat");
+      setState(prev => ({
+        ...prev,
+        mode: "chat",
+        messages: [],
+        currentSession: fallbackSessionId,
+      }));
+    }
+  };
+
+  // 选择历史会话 - 不要动画,直接切换
+  const handleSelectSession = async (sessionId: string) => {
+    console.log("📂 加载历史会话:", sessionId);
+
+    try {
+      // 获取会话详情
+      const detail = await getSessionDetail(sessionId);
+
+      // 将历史消息转换为界面消息格式
+      const historyMessages: Message[] = detail.messages.map(msg => ({
+        id: msg.message_id,
+        role: msg.role as "user" | "assistant",
+        content: msg.content,
+        timestamp: new Date(msg.created_at),
+        isStreaming: false,
+      }));
+
+      // 直接切换到聊天模式并加载历史消息,不要过渡动画
+      setState(prev => ({
+        ...prev,
+        mode: "chat",
+        messages: historyMessages,
+        currentSession: sessionId,
+        isTransitioning: false,
+        isThinking: false,
+        workflowEvents: new Map(),
+      }));
+
+      console.log("✅ 历史会话加载成功，消息数:", historyMessages.length);
+
+      // 使用 setTimeout 确保 DOM 更新后再滚动
+      setTimeout(() => {
+        // 滚动到最新消息(底部)
+        const chatContainer = document.querySelector("[data-chat-container]");
+        if (chatContainer) {
+          chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+      }, 0);
+    } catch (error) {
+      console.error("❌ 加载历史会话失败:", error);
+      // 可以在这里添加错误提示
+      alert(error instanceof Error ? error.message : "加载历史会话失败");
+    }
   };
 
   // 删除消息
@@ -428,60 +529,85 @@ export const NotionAIInterface: React.FC = () => {
   };
 
   return (
-    <div className="notion-ai-interface relative w-full h-screen bg-[var(--surface-base)] overflow-hidden">
-      {/* 欢迎界面 - 绝对定位，向上滑出 */}
+    <div className="notion-ai-interface relative w-full h-screen bg-[var(--surface-base)] overflow-hidden flex">
+      {/* 会话历史侧边栏 - 仅在登录且处于聊天模式时显示 */}
       <AnimatePresence>
-        {state.mode === "welcome" && (
+        {state.showHistory && state.mode === "chat" && (
           <motion.div
-            key="welcome"
-            initial={{ opacity: 1, y: 0 }}
-            exit={{
-              opacity: 0,
-              y: "-100%",
-            }}
-            transition={{
-              duration: 0.5,
-              ease: [0.32, 0.72, 0, 1], // 自定义缓动：快速启动，平滑结束
-            }}
-            className="absolute inset-0 z-20"
+            initial={{ width: 0, opacity: 0 }}
+            animate={{ width: 280, opacity: 1 }}
+            exit={{ width: 0, opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            className="flex-shrink-0 h-full overflow-hidden"
           >
-            <AIWelcomeState onSubmit={handleFirstMessage} isTransitioning={state.isTransitioning} />
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* 对话界面 - 从下方滑入 */}
-      <AnimatePresence>
-        {state.mode === "chat" && (
-          <motion.div
-            key="chat"
-            initial={{
-              opacity: 0,
-              y: "100%",
-            }}
-            animate={{
-              opacity: 1,
-              y: 0,
-            }}
-            transition={{
-              duration: 0.5,
-              ease: [0.32, 0.72, 0, 1], // 与欢迎界面相同的缓动
-            }}
-            className="absolute inset-0 z-10"
-          >
-            <AIChatState
-              messages={state.messages}
-              onMessage={handleMessage}
-              onReset={handleReset}
-              onDeleteMessage={handleDeleteMessage}
-              onEditMessage={handleEditMessage}
-              onRetryMessage={handleRetryMessage}
-              isThinking={state.isThinking}
-              animated={true}
+            <SessionHistory
+              currentSessionId={state.currentSession}
+              onSelectSession={handleSelectSession}
+              onNewChat={handleReset}
+              refreshKey={state.sessionListKey}
             />
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* 主内容区域 */}
+      <div className="flex-1 relative overflow-hidden">
+        {/* 欢迎界面 - 绝对定位，向上滑出 */}
+        <AnimatePresence>
+          {state.mode === "welcome" && (
+            <motion.div
+              key="welcome"
+              initial={{ opacity: 1, y: 0 }}
+              exit={{
+                opacity: 0,
+                y: "-100%",
+              }}
+              transition={{
+                duration: 0.5,
+                ease: [0.32, 0.72, 0, 1], // 自定义缓动：快速启动，平滑结束
+              }}
+              className="absolute inset-0 z-20"
+            >
+              <AIWelcomeState
+                onSubmit={handleFirstMessage}
+                isTransitioning={state.isTransitioning}
+              />
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* 对话界面 - 从下方滑入 */}
+        <AnimatePresence>
+          {state.mode === "chat" && (
+            <motion.div
+              key="chat"
+              initial={{
+                opacity: 0,
+                y: "100%",
+              }}
+              animate={{
+                opacity: 1,
+                y: 0,
+              }}
+              transition={{
+                duration: 0.5,
+                ease: [0.32, 0.72, 0, 1], // 与欢迎界面相同的缓动
+              }}
+              className="absolute inset-0 z-10"
+            >
+              <AIChatState
+                messages={state.messages}
+                onMessage={handleMessage}
+                onReset={handleReset}
+                onDeleteMessage={handleDeleteMessage}
+                onEditMessage={handleEditMessage}
+                onRetryMessage={handleRetryMessage}
+                isThinking={state.isThinking}
+              />
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
     </div>
   );
 };
