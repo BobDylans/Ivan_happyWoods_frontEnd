@@ -10,8 +10,14 @@ import {
   Loader2,
   RefreshCw,
   Plus,
+  Trash2,
 } from "lucide-react";
-import { getUserSessions, getSessionDetail, type SessionItem } from "@/lib/api-service";
+import {
+  getUserSessions,
+  getSessionDetail,
+  deleteSession,
+  type SessionItem,
+} from "@/lib/api-service";
 import { cn } from "@/lib/utils";
 
 interface SessionHistoryProps {
@@ -148,6 +154,27 @@ export const SessionHistory: React.FC<SessionHistoryProps> = ({
     }
   };
 
+  // 删除会话
+  const handleDeleteSession = async (sessionId: string, e: React.MouseEvent) => {
+    e.stopPropagation(); // 阻止事件冒泡,避免触发选择会话
+
+    if (!confirm("确定要删除这个会话吗？\n\n此操作不可恢复！")) {
+      return;
+    }
+
+    try {
+      await deleteSession(sessionId);
+
+      // 删除成功,从列表中移除
+      setSessions(prev => prev.filter(s => s.session_id !== sessionId));
+
+      console.log("✅ 会话删除成功:", sessionId);
+    } catch (error) {
+      console.error("❌ 删除会话失败:", error);
+      alert(error instanceof Error ? error.message : "删除会话失败，请重试");
+    }
+  };
+
   // 格式化时间
   const formatTime = (dateString: string) => {
     const date = new Date(dateString);
@@ -245,7 +272,7 @@ export const SessionHistory: React.FC<SessionHistoryProps> = ({
                       transition={{ delay: index * 0.05 }}
                       onClick={() => handleSelectSession(session)}
                       className={cn(
-                        "w-full p-3 rounded-lg text-left transition-all hover:bg-[var(--surface-elevated)]",
+                        "group w-full p-3 rounded-lg text-left transition-all hover:bg-[var(--surface-elevated)]",
                         currentSessionId === session.session_id &&
                           "bg-[var(--interactive-primary)]/10 border border-[var(--interactive-primary)]"
                       )}
@@ -294,6 +321,14 @@ export const SessionHistory: React.FC<SessionHistoryProps> = ({
                             </span>
                           </div>
                         </div>
+                        {/* 删除按钮 */}
+                        <button
+                          onClick={e => handleDeleteSession(session.session_id, e)}
+                          className="p-1.5 rounded-md hover:bg-red-100 text-[var(--text-secondary)] hover:text-red-600 transition-colors opacity-0 group-hover:opacity-100"
+                          title="删除会话"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
                       </div>
                     </motion.button>
                   ))}

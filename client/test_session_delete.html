@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>会话删除功能测试</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            color: #1f2937;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+
+        h2 {
+            color: #374151;
+            margin: 20px 0 15px 0;
+            font-size: 20px;
+            border-bottom: 2px solid #e5e7eb;
+            padding-bottom: 10px;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+
+        .status-badge.logged-in {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .status-badge.logged-out {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            color: #374151;
+            font-weight: 500;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 15px;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin-right: 10px;
+            margin-top: 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        }
+
+        .btn-secondary {
+            background: #6b7280;
+        }
+
+        .result-box {
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            max-height: 400px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+
+        .result-box.success {
+            background: #d1fae5;
+            border-color: #10b981;
+            color: #065f46;
+        }
+
+        .result-box.error {
+            background: #fee2e2;
+            border-color: #ef4444;
+            color: #991b1b;
+        }
+
+        .session-item {
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .session-info {
+            flex: 1;
+        }
+
+        .session-info p {
+            margin: 5px 0;
+            font-size: 14px;
+            color: #374151;
+        }
+
+        .session-info .session-id {
+            font-weight: 600;
+            color: #1f2937;
+        }
+
+        .delete-btn {
+            padding: 8px 16px;
+            background: #ef4444;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .delete-btn:hover {
+            background: #dc2626;
+        }
+
+        .token-display {
+            background: #1f2937;
+            color: #10b981;
+            padding: 10px;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 11px;
+            margin-top: 10px;
+            word-break: break-all;
+            max-height: 100px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 登录区域 -->
+        <div class="card">
+            <h1>
+                会话删除功能测试
+                <span class="status-badge" id="loginStatus">未登录</span>
+            </h1>
+            
+            <div class="form-group">
+                <label>API 地址</label>
+                <input type="text" id="apiUrl" value="http://127.0.0.1:8000" placeholder="API 地址">
+            </div>
+
+            <h2>🔑 登录</h2>
+            <div class="form-group">
+                <label>用户名</label>
+                <input type="text" id="loginUsername" placeholder="用户名" value="testuser">
+            </div>
+            <div class="form-group">
+                <label>密码</label>
+                <input type="password" id="loginPassword" placeholder="密码" value="testpass123">
+            </div>
+            <button class="btn" onclick="loginUser()">登录</button>
+            <button class="btn btn-secondary" onclick="logout()">注销</button>
+
+            <div id="tokenDisplay"></div>
+            <div id="loginResult"></div>
+        </div>
+
+        <!-- 会话管理区域 -->
+        <div class="card">
+            <h2>📋 会话管理</h2>
+            
+            <button class="btn" onclick="createSession()">➕ 创建新会话</button>
+            <button class="btn btn-secondary" onclick="loadSessions()">🔄 刷新会话列表</button>
+            
+            <div id="sessionList"></div>
+            <div id="sessionResult"></div>
+        </div>
+
+        <!-- 测试区域 -->
+        <div class="card">
+            <h2>🧪 手动测试</h2>
+            
+            <div class="form-group">
+                <label>会话 ID</label>
+                <input type="text" id="manualSessionId" placeholder="输入要删除的会话 ID">
+            </div>
+            
+            <button class="btn btn-danger" onclick="deleteSessionManual()">🗑️ 删除指定会话</button>
+            
+            <div id="manualResult"></div>
+        </div>
+    </div>
+
+    <script>
+        let accessToken = localStorage.getItem('access_token') || '';
+        let sessions = [];
+
+        // 初始化
+        window.addEventListener('load', () => {
+            updateLoginStatus();
+            if (accessToken) {
+                displayToken();
+                loadSessions();
+            }
+        });
+
+        // 更新登录状态
+        function updateLoginStatus() {
+            const statusBadge = document.getElementById('loginStatus');
+            if (accessToken) {
+                statusBadge.textContent = '✓ 已登录';
+                statusBadge.className = 'status-badge logged-in';
+            } else {
+                statusBadge.textContent = '✗ 未登录';
+                statusBadge.className = 'status-badge logged-out';
+            }
+        }
+
+        // 显示 Token
+        function displayToken() {
+            const tokenDisplay = document.getElementById('tokenDisplay');
+            if (accessToken) {
+                tokenDisplay.innerHTML = `
+                    <div class="token-display">
+                        <strong>Access Token:</strong><br>
+                        ${accessToken.substring(0, 50)}...
+                    </div>
+                `;
+            }
+        }
+
+        // 获取 API URL
+        function getApiUrl() {
+            return document.getElementById('apiUrl').value.trim();
+        }
+
+        // 显示结果
+        function showResult(elementId, data, isError = false) {
+            const element = document.getElementById(elementId);
+            const resultClass = isError ? 'error' : 'success';
+            element.innerHTML = `<div class="result-box ${resultClass}">${JSON.stringify(data, null, 2)}</div>`;
+        }
+
+        // 登录
+        async function loginUser() {
+            const username = document.getElementById('loginUsername').value.trim();
+            const password = document.getElementById('loginPassword').value.trim();
+
+            if (!username || !password) {
+                alert('请填写用户名和密码！');
+                return;
+            }
+
+            try {
+                const formData = new URLSearchParams();
+                formData.append('username', username);
+                formData.append('password', password);
+
+                const response = await fetch(`${getApiUrl()}/api/v1/auth/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    accessToken = data.access_token;
+                    localStorage.setItem('access_token', accessToken);
+
+                    showResult('loginResult', {
+                        success: true,
+                        message: '登录成功！',
+                        token: accessToken.substring(0, 50) + '...'
+                    });
+
+                    updateLoginStatus();
+                    displayToken();
+                    loadSessions();
+                } else {
+                    showResult('loginResult', {
+                        error: data.detail || '登录失败',
+                        status: response.status
+                    }, true);
+                }
+            } catch (error) {
+                showResult('loginResult', {
+                    error: error.message,
+                    type: 'NetworkError'
+                }, true);
+            }
+        }
+
+        // 注销
+        function logout() {
+            accessToken = '';
+            localStorage.removeItem('access_token');
+            updateLoginStatus();
+            document.getElementById('tokenDisplay').innerHTML = '';
+            document.getElementById('sessionList').innerHTML = '';
+            showResult('loginResult', { message: '已注销登录' });
+        }
+
+        // 创建会话
+        async function createSession() {
+            if (!accessToken) {
+                alert('请先登录！');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${getApiUrl()}/api/v1/conversation/sessions/create`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${accessToken}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        title: `测试会话 ${new Date().toLocaleString('zh-CN')}`
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok || data.success) {
+                    showResult('sessionResult', {
+                        success: true,
+                        message: '会话创建成功',
+                        session_id: data.session_id,
+                        created_at: data.created_at
+                    });
+                    
+                    // 刷新会话列表
+                    setTimeout(() => loadSessions(), 500);
+                } else {
+                    showResult('sessionResult', { error: data.detail || data.message }, true);
+                }
+            } catch (error) {
+                showResult('sessionResult', { error: error.message }, true);
+            }
+        }
+
+        // 加载会话列表
+        async function loadSessions() {
+            if (!accessToken) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`${getApiUrl()}/api/v1/conversation/sessions/?page=1&page_size=20`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${accessToken}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    sessions = data.sessions || [];
+                    displaySessions();
+                } else {
+                    showResult('sessionResult', { error: '加载会话列表失败', detail: data }, true);
+                }
+            } catch (error) {
+                showResult('sessionResult', { error: '网络错误: ' + error.message }, true);
+            }
+        }
+
+        // 显示会话列表
+        function displaySessions() {
+            const sessionList = document.getElementById('sessionList');
+            
+            if (sessions.length === 0) {
+                sessionList.innerHTML = '<p style="text-align: center; color: #6b7280; margin-top: 20px;">暂无会话</p>';
+                return;
+            }
+
+            let html = '<h3 style="margin-top: 20px; color: #374151;">会话列表 (共 ' + sessions.length + ' 个)</h3>';
+            
+            sessions.forEach(session => {
+                html += `
+                    <div class="session-item">
+                        <div class="session-info">
+                            <p class="session-id">📝 ${session.session_id}</p>
+                            <p>状态: ${session.status} | 消息数: ${session.message_count}</p>
+                            <p>创建: ${new Date(session.created_at).toLocaleString('zh-CN')}</p>
+                        </div>
+                        <button class="delete-btn" onclick="deleteSession('${session.session_id}')">
+                            🗑️ 删除
+                        </button>
+                    </div>
+                `;
+            });
+
+            sessionList.innerHTML = html;
+        }
+
+        // 删除会话
+        async function deleteSession(sessionId) {
+            if (!confirm(`确定要删除会话 ${sessionId} 吗？\n\n此操作不可恢复！`)) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`${getApiUrl()}/api/v1/conversation/sessions/${sessionId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${accessToken}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const data = await response.json();
+
+                if (response.ok || data.success) {
+                    showResult('sessionResult', {
+                        success: true,
+                        message: '✅ 会话删除成功',
+                        session_id: sessionId
+                    });
+                    
+                    // 刷新会话列表
+                    setTimeout(() => loadSessions(), 500);
+                } else {
+                    showResult('sessionResult', {
+                        error: '删除失败',
+                        status: response.status,
+                        detail: data
+                    }, true);
+                }
+            } catch (error) {
+                showResult('sessionResult', {
+                    error: '网络错误',
+                    message: error.message
+                }, true);
+            }
+        }
+
+        // 手动删除会话
+        async function deleteSessionManual() {
+            const sessionId = document.getElementById('manualSessionId').value.trim();
+            
+            if (!sessionId) {
+                alert('请输入会话 ID！');
+                return;
+            }
+
+            if (!confirm(`确定要删除会话 ${sessionId} 吗？\n\n此操作不可恢复！`)) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`${getApiUrl()}/api/v1/conversation/sessions/${sessionId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${accessToken}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const data = await response.json();
+
+                if (response.ok || data.success) {
+                    showResult('manualResult', {
+                        success: true,
+                        message: '✅ 会话删除成功',
+                        session_id: sessionId,
+                        response: data
+                    });
+                    
+                    // 清空输入框
+                    document.getElementById('manualSessionId').value = '';
+                    
+                    // 刷新会话列表
+                    setTimeout(() => loadSessions(), 500);
+                } else {
+                    showResult('manualResult', {
+                        error: '删除失败',
+                        status: response.status,
+                        detail: data
+                    }, true);
+                }
+            } catch (error) {
+                showResult('manualResult', {
+                    error: '网络错误',
+                    message: error.message
+                }, true);
+            }
+        }
+    </script>
+</body>
+</html>

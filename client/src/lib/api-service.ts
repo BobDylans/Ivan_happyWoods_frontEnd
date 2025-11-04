@@ -710,3 +710,49 @@ export async function createNewSession(title?: string): Promise<CreateSessionRes
     throw error;
   }
 }
+
+/**
+ * 删除会话
+ * 需要 JWT Token 认证
+ */
+export async function deleteSession(
+  sessionId: string
+): Promise<{ success: boolean; message: string }> {
+  const token = getAuthToken();
+  if (!token) {
+    throw new Error("未登录，请先登录");
+  }
+
+  try {
+    const response = await fetch(
+      `${API_CONFIG.baseUrl}/api/v1/conversation/sessions/${sessionId}`,
+      {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      if (response.status === 401) {
+        // Token 过期，尝试刷新
+        const refreshed = await refreshAuthToken();
+        if (refreshed) {
+          // 重试请求
+          return deleteSession(sessionId);
+        }
+        throw new Error("认证失败，请重新登录");
+      }
+      throw new Error(data.message || data.detail || `HTTP ${response.status}`);
+    }
+
+    return data;
+  } catch (error) {
+    console.error("删除会话错误:", error);
+    throw error;
+  }
+}
