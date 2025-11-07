@@ -665,6 +665,22 @@ export interface CreateSessionResponse {
   created_at: string;
 }
 
+// RAG 知识库相关类型定义
+export interface RagUploadResult {
+  filename: string;
+  chunks_count: number;
+  success: boolean;
+  error?: string;
+}
+
+export interface RagUploadResponse {
+  success: boolean;
+  message: string;
+  user_id: string;
+  collection_name: string;
+  results: RagUploadResult[];
+}
+
 /**
  * 创建新会话
  * 需要 JWT Token 认证
@@ -753,6 +769,75 @@ export async function deleteSession(
     return data;
   } catch (error) {
     console.error("删除会话错误:", error);
+    throw error;
+  }
+}
+
+// ==================== RAG 知识库 API ====================
+
+/**
+ * 上传文档到 RAG 知识库
+ * 需要传递用户 UUID
+ * 
+ * @param files - 要上传的文件数组
+ * @param userId - 用户 UUID (必须)
+ * @param options - 可选参数 (corpus_name, corpus_id, collection_name)
+ * @param apiKey - 可选的 API Key
+ */
+export async function uploadRagDocuments(
+  files: File[],
+  userId: string,
+  options?: {
+    corpus_name?: string;
+    corpus_id?: string;
+    collection_name?: string;
+  },
+  apiKey?: string
+): Promise<RagUploadResponse> {
+  const formData = new FormData();
+  
+  // 必须参数：用户 ID
+  formData.append("user_id", userId);
+  
+  // 添加文件
+  files.forEach(file => {
+    formData.append("files", file, file.name);
+  });
+  
+  // 可选参数
+  if (options?.corpus_name) {
+    formData.append("corpus_name", options.corpus_name);
+  }
+  if (options?.corpus_id) {
+    formData.append("corpus_id", options.corpus_id);
+  }
+  if (options?.collection_name) {
+    formData.append("collection_name", options.collection_name);
+  }
+  
+  const headers: HeadersInit = {};
+  if (apiKey) {
+    headers["X-API-Key"] = apiKey;
+  }
+  
+  try {
+    const response = await fetch(
+      `${API_CONFIG.baseUrl}/api/v1/rag/user/upload`,
+      {
+        method: "POST",
+        headers,
+        body: formData,
+      }
+    );
+    
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.detail || `HTTP ${response.status}`);
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error("上传 RAG 文档错误:", error);
     throw error;
   }
 }

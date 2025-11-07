@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Voice Agent RAG Demo</title>
+    <style>
+      :root {
+        color-scheme: light dark;
+        font-family: "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+        background: #f4f6fb;
+        color: #1f2933;
+      }
+
+      body {
+        margin: 0;
+        padding: 0 16px 24px;
+        display: flex;
+        justify-content: center;
+        background: linear-gradient(160deg, #eef2ff, #f8fafc 60%, #ffffff);
+      }
+
+      main {
+        width: min(960px, 100%);
+        margin-top: 32px;
+        background: rgba(255, 255, 255, 0.9);
+        border-radius: 16px;
+        box-shadow: 0 22px 45px rgba(15, 23, 42, 0.08);
+        padding: 32px 36px 28px;
+        backdrop-filter: blur(6px);
+      }
+
+      h1 {
+        margin: 0 0 12px;
+        font-size: 28px;
+        letter-spacing: 0.01em;
+      }
+
+      p.description {
+        margin: 0 0 24px;
+        color: #4b5563;
+        line-height: 1.5;
+      }
+
+      section.settings {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 16px;
+        margin-bottom: 24px;
+        align-items: end;
+      }
+
+      label {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        font-size: 13px;
+        color: #475569;
+      }
+
+      input,
+      textarea {
+        border-radius: 10px;
+        border: 1px solid #cbd5f5;
+        padding: 10px 12px;
+        font: inherit;
+        background: #f9fbff;
+        color: inherit;
+        transition: border 0.2s ease, box-shadow 0.2s ease;
+      }
+
+      input:focus,
+      textarea:focus {
+        outline: none;
+        border-color: #6366f1;
+        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+      }
+
+      button {
+        border: none;
+        border-radius: 10px;
+        padding: 10px 18px;
+        font: 600 14px "Segoe UI", sans-serif;
+        cursor: pointer;
+        background: #4f46e5;
+        color: white;
+        transition: transform 0.12s ease, box-shadow 0.12s ease;
+      }
+
+      button.secondary {
+        background: #e2e8f0;
+        color: #1f2937;
+      }
+
+      button:disabled {
+        opacity: 0.6;
+        cursor: wait;
+      }
+
+      button:not(:disabled):hover {
+        transform: translateY(-1px);
+        box-shadow: 0 8px 16px rgba(79, 70, 229, 0.2);
+      }
+
+      .panel {
+        border-radius: 14px;
+        border: 1px solid rgba(148, 163, 184, 0.25);
+        background: rgba(248, 250, 252, 0.8);
+        padding: 18px 22px;
+        margin-bottom: 20px;
+      }
+
+      #log {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        max-height: 360px;
+        overflow-y: auto;
+        padding-right: 4px;
+      }
+
+      .message {
+        display: grid;
+        gap: 6px;
+        border-left: 4px solid transparent;
+        padding-left: 12px;
+      }
+
+      .message.user {
+        border-color: #6366f1;
+      }
+
+      .message.assistant {
+        border-color: #0ea5e9;
+      }
+
+      .message .role {
+        font-weight: 600;
+        font-size: 13px;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: #64748b;
+      }
+
+      .message .content {
+        font-size: 15px;
+        line-height: 1.6;
+        white-space: pre-wrap;
+      }
+
+      .timestamp {
+        font-size: 12px;
+        color: #94a3b8;
+      }
+
+      .composer {
+        display: grid;
+        gap: 14px;
+      }
+
+      textarea#message {
+        resize: vertical;
+        min-height: 90px;
+      }
+
+      .rag-panel.hidden {
+        display: none;
+      }
+
+      .rag-item {
+        display: grid;
+        gap: 4px;
+        padding: 12px;
+        border-radius: 12px;
+        background: #eef2ff;
+        border: 1px solid rgba(99, 102, 241, 0.2);
+        font-size: 14px;
+      }
+
+      .rag-item strong {
+        font-weight: 600;
+        color: #4338ca;
+      }
+
+      .status-line {
+        margin-top: -4px;
+        min-height: 20px;
+        font-size: 13px;
+        color: #4b5563;
+      }
+
+      .upload-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 16px;
+        margin-bottom: 10px;
+      }
+
+      .upload-result {
+        margin-top: 10px;
+        display: grid;
+        gap: 10px;
+        font-size: 14px;
+        color: #1f2937;
+      }
+
+      .upload-card {
+        border: 1px solid rgba(148, 163, 184, 0.4);
+        border-radius: 12px;
+        padding: 10px 14px;
+        background: rgba(241, 245, 249, 0.8);
+        display: grid;
+        gap: 6px;
+      }
+
+      .upload-card .file-name {
+        font-weight: 600;
+        color: #4338ca;
+      }
+
+      .upload-card .file-status {
+        font-size: 13px;
+        color: #4b5563;
+      }
+
+      .error {
+        color: #dc2626;
+      }
+
+      @media (max-width: 768px) {
+        main {
+          padding: 24px 20px;
+        }
+
+        section.settings {
+          grid-template-columns: 1fr;
+        }
+
+        .upload-grid {
+          grid-template-columns: 1fr;
+        }
+
+        textarea#message {
+          min-height: 120px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Voice Agent RAG Demo</h1>
+      <p class="description">
+        这个页面使用 <code>/api/chat</code> 接口进行文本对话，并展示 RAG 检索到的知识片段。
+        请确保后台服务已运行，并完成 <code>scripts/rag_ingest.py</code> 的向量导入。
+      </p>
+
+      <section class="settings">
+        <label>
+          API Base URL
+          <input id="baseUrl" type="text" value="http://localhost:8000/api/v1/chat/" />
+        </label>
+        <label>
+          X-API-Key（若启用）
+          <input id="apiKey" type="password" placeholder="可选：填写 .env 中的 API_KEYS" />
+        </label>
+        <label>
+          Session ID
+          <input id="sessionId" type="text" placeholder="自动生成" />
+        </label>
+        <button id="newSession" class="secondary" type="button">新建会话</button>
+      </section>
+
+      <section class="panel" style="margin-bottom: 28px;">
+        <h2 style="margin:0 0 14px;font-size:18px;">知识库文档上传</h2>
+        <p style="margin:0 0 14px;color:#4b5563;font-size:14px;line-height:1.6;">
+          通过 <code>/api/v1/rag/user/upload</code> 上传 Markdown / PDF / DOCX / TXT 文档，首次提交会自动为该用户创建向量集合。
+        </p>
+        <div class="upload-grid">
+          <label>
+            Upload API URL
+            <input id="uploadUrl" type="text" value="http://localhost:8000/api/v1/rag/user/upload" />
+          </label>
+          <label>
+            用户 ID (UUID)
+            <input id="uploadUserId" type="text" placeholder="必填，例如：00000000-0000-0000-0000-000000000000" />
+          </label>
+          <label>
+            知识库名称 (可选)
+            <input id="uploadCorpusName" type="text" placeholder="默认使用配置中的名称" />
+          </label>
+          <label>
+            自定义 Corpus ID (可选)
+            <input id="uploadCorpusId" type="text" placeholder="参与集合命名" />
+          </label>
+          <label>
+            自定义 Collection 名称 (可选)
+            <input id="uploadCollectionName" type="text" placeholder="覆盖模板生成的集合名" />
+          </label>
+          <label>
+            上传文件
+            <input
+              id="uploadFiles"
+              type="file"
+              multiple
+              accept=".md,.markdown,.mdx,.txt,.pdf,.docx"
+            />
+          </label>
+        </div>
+        <div style="display:flex; gap:12px; margin-top:12px;">
+          <button id="uploadButton" type="button">上传到知识库</button>
+          <button id="clearUploadFiles" class="secondary" type="button">清空选择</button>
+        </div>
+        <div id="uploadStatus" class="status-line" style="margin-top:12px;"></div>
+        <div id="uploadResult" class="upload-result"></div>
+      </section>
+
+      <section class="panel">
+        <div id="log"></div>
+      </section>
+      <div class="status-line" id="status"></div>
+
+      <section class="composer">
+        <textarea
+          id="message"
+          placeholder="输入问题，例如：RAG 默认会返回多少个知识片段？"
+        ></textarea>
+        <div style="display:flex; gap:12px; justify-content:flex-end;">
+          <button id="send" type="button">发送</button>
+        </div>
+      </section>
+
+      <section class="panel rag-panel hidden" id="ragPanel">
+        <h2 style="margin:0 0 8px; font-size:18px;">关联知识片段</h2>
+        <div id="ragList" style="display:grid; gap:12px;"></div>
+      </section>
+    </main>
+
+    <script>
+      (function () {
+        const baseUrlInput = document.getElementById("baseUrl");
+        const apiKeyInput = document.getElementById("apiKey");
+        const sessionInput = document.getElementById("sessionId");
+        const messageInput = document.getElementById("message");
+        const sendButton = document.getElementById("send");
+        const newSessionBtn = document.getElementById("newSession");
+        const logEl = document.getElementById("log");
+        const statusEl = document.getElementById("status");
+        const ragPanel = document.getElementById("ragPanel");
+        const ragList = document.getElementById("ragList");
+        const uploadUrlInput = document.getElementById("uploadUrl");
+        const uploadUserIdInput = document.getElementById("uploadUserId");
+        const uploadCorpusNameInput = document.getElementById("uploadCorpusName");
+        const uploadCorpusIdInput = document.getElementById("uploadCorpusId");
+        const uploadCollectionNameInput = document.getElementById("uploadCollectionName");
+        const uploadFilesInput = document.getElementById("uploadFiles");
+        const uploadButton = document.getElementById("uploadButton");
+        const clearUploadButton = document.getElementById("clearUploadFiles");
+        const uploadStatusEl = document.getElementById("uploadStatus");
+        const uploadResultEl = document.getElementById("uploadResult");
+
+        const SESSION_STORAGE_KEY = "voice-agent-demo-session";
+
+        function generateSessionId() {
+          return "session_" + Math.random().toString(16).slice(2, 10);
+        }
+
+        function ensureSessionId() {
+          let sid = sessionInput.value.trim();
+          if (!sid) {
+            sid = window.localStorage.getItem(SESSION_STORAGE_KEY) || generateSessionId();
+            sessionInput.value = sid;
+            window.localStorage.setItem(SESSION_STORAGE_KEY, sid);
+          }
+          return sid;
+        }
+
+        function appendMessage(role, content, timestamp = new Date()) {
+          const container = document.createElement("div");
+          container.className = `message ${role}`;
+
+          const roleEl = document.createElement("div");
+          roleEl.className = "role";
+          roleEl.textContent = role === "user" ? "你" : "Voice Agent";
+          container.appendChild(roleEl);
+
+          const contentEl = document.createElement("div");
+          contentEl.className = "content";
+          contentEl.textContent = content;
+          container.appendChild(contentEl);
+
+          const tsEl = document.createElement("div");
+          tsEl.className = "timestamp";
+          tsEl.textContent = new Date(timestamp).toLocaleTimeString();
+          container.appendChild(tsEl);
+
+          logEl.appendChild(container);
+          logEl.scrollTop = logEl.scrollHeight;
+        }
+
+        function setStatus(text, isError = false) {
+          statusEl.textContent = text || "";
+          statusEl.classList.toggle("error", Boolean(isError && text));
+        }
+
+        function setUploadStatus(text, isError = false) {
+          uploadStatusEl.textContent = text || "";
+          uploadStatusEl.classList.toggle("error", Boolean(isError && text));
+        }
+
+        function renderUploadResults(results = [], message = "") {
+          uploadResultEl.innerHTML = "";
+
+          if (!results.length) {
+            if (message) {
+              const info = document.createElement("div");
+              info.textContent = message;
+              uploadResultEl.appendChild(info);
+            }
+            return;
+          }
+
+          results.forEach((item) => {
+            const card = document.createElement("div");
+            card.className = "upload-card";
+
+            const name = document.createElement("div");
+            name.className = "file-name";
+            name.textContent = item.filename || "(未知文件名)";
+            card.appendChild(name);
+
+            const statusLine = document.createElement("div");
+            statusLine.className = "file-status";
+            statusLine.textContent = `状态：${item.status}`;
+            card.appendChild(statusLine);
+
+            if (item.detail) {
+              const detail = document.createElement("div");
+              detail.style.color = "#dc2626";
+              detail.textContent = `说明：${item.detail}`;
+              card.appendChild(detail);
+            }
+
+            uploadResultEl.appendChild(card);
+          });
+
+          if (message) {
+            const summary = document.createElement("div");
+            summary.style.fontSize = "13px";
+            summary.style.color = "#475569";
+            summary.textContent = message;
+            uploadResultEl.appendChild(summary);
+          }
+        }
+
+        function renderRagSnippets(snippets) {
+          if (snippets && snippets.length) {
+            ragPanel.classList.remove("hidden");
+            ragList.innerHTML = "";
+            snippets.forEach((item, index) => {
+              const card = document.createElement("div");
+              card.className = "rag-item";
+
+              const header = document.createElement("div");
+              header.innerHTML = `<strong>片段 ${index + 1}</strong> · ${
+                item.metadata?.source || "未知来源"
+              }`;
+              card.appendChild(header);
+
+              const score = document.createElement("div");
+              if (typeof item.score === "number") {
+                score.textContent = `相关度: ${(item.score * 100).toFixed(1)}%`;
+                score.style.color = "#475569";
+                card.appendChild(score);
+              }
+
+              const text = document.createElement("div");
+              text.textContent = item.text || "(空白片段)";
+              card.appendChild(text);
+
+              ragList.appendChild(card);
+            });
+          } else {
+            ragPanel.classList.add("hidden");
+            ragList.innerHTML = "";
+          }
+        }
+
+        async function sendMessage() {
+          const message = messageInput.value.trim();
+          if (!message) {
+            setStatus("请输入要发送的内容", true);
+            return;
+          }
+
+          const baseUrl = baseUrlInput.value.trim() || "http://localhost:8000/api/chat/";
+          const sessionId = ensureSessionId();
+          const headers = { "Content-Type": "application/json" };
+          const apiKey = apiKeyInput.value.trim();
+          if (apiKey) {
+            headers["X-API-Key"] = apiKey;
+          }
+
+          appendMessage("user", message);
+          messageInput.value = "";
+          setStatus("正在请求模型与知识库…");
+          sendButton.disabled = true;
+
+          try {
+            const response = await fetch(baseUrl, {
+              method: "POST",
+              headers,
+              body: JSON.stringify({
+                message,
+                session_id: sessionId,
+                stream: false,
+              }),
+            });
+
+            if (!response.ok) {
+              const text = await response.text();
+              throw new Error(`HTTP ${response.status}: ${text}`);
+            }
+
+            const data = await response.json();
+            appendMessage("assistant", data.response || "(无回复)", data.timestamp);
+
+            const snippets = data.rag_snippets || data.metadata?.rag_snippets || [];
+            renderRagSnippets(snippets);
+
+            if (snippets.length) {
+              setStatus(`已检索 ${snippets.length} 个知识片段`);
+            } else {
+              setStatus("未命中知识库，回复基于模型推理");
+            }
+          } catch (error) {
+            console.error(error);
+            setStatus(error.message || "请求失败", true);
+            appendMessage("assistant", "抱歉，请求失败或服务不可用。", new Date());
+          } finally {
+            sendButton.disabled = false;
+          }
+        }
+
+        function resetSession() {
+          const newId = generateSessionId();
+          sessionInput.value = newId;
+          window.localStorage.setItem(SESSION_STORAGE_KEY, newId);
+          logEl.innerHTML = "";
+          renderRagSnippets([]);
+          setStatus("已创建新的会话 ID");
+        }
+
+        async function uploadDocuments() {
+          const files = uploadFilesInput.files;
+          if (!files || files.length === 0) {
+            setUploadStatus("请选择要上传的文件", true);
+            return;
+          }
+
+          const uploadUrl = uploadUrlInput.value.trim() || "http://localhost:8000/api/v1/rag/user/upload";
+          const userId = uploadUserIdInput.value.trim();
+          if (!userId) {
+            setUploadStatus("请填写用户 ID", true);
+            return;
+          }
+
+          const formData = new FormData();
+          formData.append("user_id", userId);
+
+          const corpusName = uploadCorpusNameInput.value.trim();
+          if (corpusName) {
+            formData.append("corpus_name", corpusName);
+          }
+
+          const corpusId = uploadCorpusIdInput.value.trim();
+          if (corpusId) {
+            formData.append("corpus_id", corpusId);
+          }
+
+          const collectionName = uploadCollectionNameInput.value.trim();
+          if (collectionName) {
+            formData.append("collection_name", collectionName);
+          }
+
+          for (const file of files) {
+            formData.append("files", file, file.name);
+          }
+
+          const headers = {};
+          const apiKey = apiKeyInput.value.trim();
+          if (apiKey) {
+            headers["X-API-Key"] = apiKey;
+          }
+
+          setUploadStatus("正在上传文档并更新知识库…");
+          renderUploadResults();
+          uploadButton.disabled = true;
+
+          try {
+            const response = await fetch(uploadUrl, {
+              method: "POST",
+              headers,
+              body: formData,
+            });
+
+            if (!response.ok) {
+              const text = await response.text();
+              throw new Error(`HTTP ${response.status}: ${text}`);
+            }
+
+            const data = await response.json();
+            setUploadStatus("上传完成", false);
+            renderUploadResults(data.results || [], data.message || "");
+          } catch (error) {
+            console.error(error);
+            setUploadStatus(error.message || "上传失败", true);
+            renderUploadResults();
+          } finally {
+            uploadButton.disabled = false;
+          }
+        }
+
+        function clearUploadSelection() {
+          uploadFilesInput.value = "";
+          renderUploadResults();
+          setUploadStatus("已清空文件选择");
+        }
+
+        sendButton.addEventListener("click", sendMessage);
+        messageInput.addEventListener("keydown", (event) => {
+          if (event.key === "Enter" && !event.shiftKey) {
+            event.preventDefault();
+            sendMessage();
+          }
+        });
+        newSessionBtn.addEventListener("click", resetSession);
+        uploadButton.addEventListener("click", uploadDocuments);
+        clearUploadButton.addEventListener("click", clearUploadSelection);
+
+        ensureSessionId();
+        messageInput.focus();
+      })();
+    </script>
+  </body>
+</html>
+

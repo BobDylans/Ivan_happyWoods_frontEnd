@@ -12,10 +12,38 @@ interface UploadProgress {
   message: string;
 }
 
+interface UploadResult {
+  success: boolean;
+  message?: string;
+  user_id?: string;
+  collection_name?: string;
+  results?: Array<{
+    filename: string;
+    chunks_count: number;
+    success: boolean;
+    error?: string;
+  }>;
+}
+
 interface RagUploadProps {
   onClose: () => void;
   apiUrl?: string;
   apiKey?: string;
+}
+
+/**
+ * 获取当前登录用户的 user_id (UUID)
+ */
+function getUserId(): string | null {
+  try {
+    const userInfoStr = localStorage.getItem("user_info");
+    if (!userInfoStr) return null;
+    const userInfo = JSON.parse(userInfoStr);
+    return userInfo.user_id || null;
+  } catch (error) {
+    console.error("Failed to get user_id:", error);
+    return null;
+  }
 }
 
 /**
@@ -29,13 +57,13 @@ interface RagUploadProps {
  */
 export const RagUpload: React.FC<RagUploadProps> = ({
   onClose,
-  apiUrl = "http://127.0.0.1:8000/api/v1/rag/upload",
+  apiUrl = "http://127.0.0.1:8000/api/v1/rag/user/upload",
   apiKey = "",
 }) => {
   const [files, setFiles] = useState<File[]>([]);
   const [isDragging, setIsDragging] = useState(false);
   const [progress, setProgress] = useState<UploadProgress | null>(null);
-  const [result, setResult] = useState<any>(null);
+  const [result, setResult] = useState<UploadResult | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const acceptedFormats = ".md,.markdown,.mdx,.txt,.pdf,.docx";
@@ -100,7 +128,21 @@ export const RagUpload: React.FC<RagUploadProps> = ({
       return;
     }
 
+    // 获取用户 ID (必须)
+    const userId = getUserId();
+    if (!userId) {
+      setProgress({
+        percent: 0,
+        status: "error",
+        message: "未找到用户信息，请先登录",
+      });
+      return;
+    }
+
     const formData = new FormData();
+    // 必须先添加 user_id
+    formData.append("user_id", userId);
+    // 添加文件
     files.forEach(file => {
       formData.append("files", file, file.name);
     });
