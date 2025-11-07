@@ -194,8 +194,14 @@ export const NotionAIInterface: React.FC = () => {
                 msg.id === aiMessageId
                   ? {
                       ...msg,
-                      content: `抱歉，发生了错误：${error.message}\n\n请检查后端服务是否启动（http://localhost:8000）。`,
+                      content: `${error.message}\n\n请检查后端服务是否启动（http://localhost:8000）。`,
                       isStreaming: false,
+                      error: {
+                        message: error.message,
+                        type: "API_ERROR",
+                        canRetry: true,
+                        retryCount: 0,
+                      },
                     }
                   : msg
               ),

@@ -75,7 +75,7 @@ export const Navigation: React.FC = () => {
       {/* 桌面端导航栏 - 滚动时可隐藏 */}
       <motion.nav
         className="fixed top-0 left-0 right-0 z-50 bg-[var(--surface-base)]/80 backdrop-blur-xl border-b border-[var(--border-subtle)]"
-        initial={{ y: -100 }}
+        initial={false}
         animate={{ y: isVisible ? 0 : -100 }}
         transition={{ duration: 0.3, ease: "easeInOut" }}
       >
